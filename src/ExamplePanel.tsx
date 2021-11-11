@@ -4,57 +4,88 @@ import {
   RenderState,
   Topic,
 } from "@foxglove/studio";
-import { useEffect, useLayoutEffect, useState } from "react";
+import { Component, useEffect, useLayoutEffect, useState } from "react";
 import ReactDOM from "react-dom";
+
+type StdMsgString = {
+  data: string;
+};
+
+type Message = {
+  event: "create node" | "destroy node" | "register topic";
+  [key: string]: string;
+};
+type NodeListProps = {
+  message: string;
+};
+type NodeListState = {
+  nodes: string[];
+};
+
+class NodeList extends Component<NodeListProps, NodeListState> {
+  constructor(props: NodeListProps) {
+    super(props);
+    this.state = {
+      nodes: [],
+    };
+  }
+
+  // Documentation for this function is here:
+  // https://reactjs.org/docs/react-component.html#static-getderivedstatefromprops
+  static getDerivedStateFromProps(props: NodeListProps, state: NodeListState) {
+    console.log("getDerivedStateFromProps", props, state);
+    const message: Message = JSON.parse(props.message);
+    if (message.event === "create node") {
+      const nodeName = message.node!;
+      if (!state.nodes.includes(nodeName)) {
+        state.nodes.push(nodeName);
+        console.log("create node", nodeName, state);
+      }
+    } else if (message.event === "destroy node") {
+      const nodeName = message.node!;
+      state.nodes = state.nodes.filter((node) => node !== nodeName);
+      console.log("destroy node", nodeName, state);
+    } else if (message.event === "register topic") {
+      // TODO: register topic
+    }
+    return state;
+  }
+  render() {
+    return (
+      <>
+        <h1>Node viewer</h1>
+        <ul>
+          {this.state.nodes.map((node) => <li>{node}</li>)}
+        </ul>
+      </>
+    );
+  }
+}
 
 function ExamplePanel(
   { context }: { context: PanelExtensionContext },
 ): JSX.Element {
   const [topics, setTopics] = useState<readonly Topic[] | undefined>();
-  const [messages, setMessages] = useState<
+  const [_messages, setMessages] = useState<
     readonly MessageEvent<unknown>[] | undefined
   >();
 
   const [renderDone, setRenderDone] = useState<(() => void) | undefined>();
 
-  // We use a layout effect to setup render handling for our panel. We also setup some topic subscriptions.
   useLayoutEffect(() => {
-    // The render handler is run by the broader studio system during playback when your panel
-    // needs to render because the fields it is watching have changed. How you handle rendering depends on your framework.
-    // You can only setup one render handler - usually early on in setting up your panel.
-    //
-    // Without a render handler your panel will never receive updates.
-    //
-    // The render handler could be invoked as often as 60hz during playback if fields are changing often.
     context.onRender = (renderState: RenderState, done) => {
-      // render functions receive a _done_ callback. You MUST call this callback to indicate your panel has finished rendering.
-      // Your panel will not receive another render callback until _done_ is called from a prior render. If your panel is not done
-      // rendering before the next render call, studio shows a notification to the user that your panel is delayed.
-      //
-      // Set the done callback into a state variable to trigger a re-render.
+      const messages = (renderState.currentFrame?.map((messageEvent) =>
+        messageEvent.message
+      ) ?? []) as String[];
       setRenderDone(done);
-
-      // We may have new topics - since we are also watching for messages in the current frame, topics may not have changed
-      // It is up to you to determine the correct action when state has not changed.
       setTopics(renderState.topics);
-
-      // currentFrame has messages on subscribed topics since the last render call
-      setMessages(renderState.currentFrame);
+      if (messages.length > 0) {
+        setMessages(renderState.currentFrame);
+      }
     };
-
-    // After adding a render handler, you must indicate which fields from RenderState will trigger updates.
-    // If you do not watch any fields then your panel will never render since the panel context will assume you do not want any updates.
-
-    // tell the panel context that we care about any update to the _topic_ field of RenderState
     context.watch("topics");
-
-    // tell the panel context we want messages for the current frame for topics we've subscribed to
-    // This corresponds to the _currentFrame_ field of render state.
     context.watch("currentFrame");
-
-    // subscribe to some topics, you could do this within other effects, based on input fields, etc
-    // Once you subscribe to topics, currentFrame will contain message events from those topics (assuming there are messages).
-    context.subscribe(["/some/topic"]);
+    context.subscribe(["system_events"]);
   }, []);
 
   // invoke the done callback once the render is complete
@@ -64,8 +95,24 @@ function ExamplePanel(
 
   return (
     <>
-      <div>{topics?.join(",")}</div>
-      <div>{messages?.length}</div>
+      <p>
+        <h1>Topics</h1>
+        <ul>
+          {topics?.map((topic) => (
+            <li>
+              <code>{topic.name}</code>
+            </li>
+          ))}
+        </ul>
+        {_messages?.map((messageEvent) => (
+          <>
+            <h1>Messages</h1>
+            <code>{(messageEvent.message as StdMsgString).data}</code>
+            <br />
+            <NodeList message={(messageEvent.message as StdMsgString).data} />
+          </>
+        ))}
+      </p>
     </>
   );
 }
