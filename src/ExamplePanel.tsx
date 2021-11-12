@@ -89,10 +89,7 @@ class SystemViewerPanel extends Component<SystemViewerProps, SystemViewerState> 
 
   componentDidMount() {
     this.props.context.onRender = (renderState: RenderState, done) => {
-      const messages = (renderState.currentFrame?.map((messageEvent) =>
-        messageEvent.message
-      ) ?? []) as String[];
-      if (messages.length > 0) {
+      if (renderState.currentFrame && renderState.currentFrame.length > 0) {
         this.setState({messages: renderState.currentFrame});
       }
       if (renderState.allFrames && renderState.allFrames.length > 0 && renderState.allFrames !== this.state.allMessages) {
@@ -118,6 +115,8 @@ class SystemViewerPanel extends Component<SystemViewerProps, SystemViewerState> 
   }
 
   render() {
+    const messages = this.state.messages?.map((message) => (message.message as StdMsgString).data);
+
     return (
       <>
         <h1>My panel</h1>
@@ -128,12 +127,12 @@ class SystemViewerPanel extends Component<SystemViewerProps, SystemViewerState> 
             </li>
           ))}
         </ul>
-        {this.state.messages?.map((messageEvent) => (
+        {messages?.map(message => (
           <>
-            <h1>Messages</h1>
-            <code>{(messageEvent.message as StdMsgString).data}</code>
+            <h1>Message</h1>
+            <code>{message}</code>
             <br />
-            <NodeList message={(messageEvent.message as StdMsgString).data} />
+            <NodeList message={message} />
           </>
         ))}
         <PreviewTime previewTime={this.state.previewTime} />
