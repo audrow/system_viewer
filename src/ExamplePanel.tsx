@@ -4,7 +4,7 @@ import {
   RenderState,
   Topic,
 } from "@foxglove/studio";
-import { Component, useEffect, useLayoutEffect, useState } from "react";
+import { Component } from "react";
 import ReactDOM from "react-dom";
 
 type StdMsgString = {
@@ -62,49 +62,73 @@ class NodeList extends Component<NodeListProps, NodeListState> {
   }
 }
 
-function ExamplePanel(
-  { context }: { context: PanelExtensionContext },
-): JSX.Element {
-  const [topics, setTopics] = useState<readonly Topic[] | undefined>();
-  const [_messages, setMessages] = useState<
-    readonly MessageEvent<unknown>[] | undefined
-  >();
+type SystemViewerProps = {
+  context: PanelExtensionContext;
+}
 
-  const [renderDone, setRenderDone] = useState<(() => void) | undefined>();
+type SystemViewerState = {
+  topics?: readonly Topic[];
+  messages?: readonly MessageEvent<unknown>[];
+  allMessages?: readonly MessageEvent<unknown>[];
+  renderDone?: (() => void);
+  previewTime?: number;
+}
 
-  useLayoutEffect(() => {
-    context.onRender = (renderState: RenderState, done) => {
+class SystemViewerPanel extends Component<SystemViewerProps, SystemViewerState> {
+
+  constructor(props: any) {
+    super(props);
+    this.state = {
+      topics: [],
+      messages: [],
+      allMessages: [],
+      renderDone: undefined,
+      previewTime: undefined,
+    };
+  }
+
+  componentDidMount() {
+    this.props.context.onRender = (renderState: RenderState, done) => {
       const messages = (renderState.currentFrame?.map((messageEvent) =>
         messageEvent.message
       ) ?? []) as String[];
-      setRenderDone(done);
-      setTopics(renderState.topics);
       if (messages.length > 0) {
-        setMessages(renderState.currentFrame);
+        this.setState({messages: renderState.currentFrame});
       }
-    };
-    context.watch("topics");
-    context.watch("currentFrame");
-    context.subscribe(["system_events"]);
-  }, []);
+      if (renderState.allFrames && renderState.allFrames.length > 0 && renderState.allFrames !== this.state.allMessages) {
+        this.setState({allMessages: renderState.allFrames});
+      }
+      if (renderState.previewTime !== undefined) {
+        this.setState({previewTime: renderState.previewTime});
+      }
+      this.setState({
+        topics: renderState.topics,
+        renderDone: done,
+      });
+    }
+    this.props.context.watch("topics");
+    this.props.context.watch("currentFrame");
+    this.props.context.watch("allFrames");
+    this.props.context.watch("previewTime");
+    this.props.context.subscribe(["system_events"]);
+  }
 
-  // invoke the done callback once the render is complete
-  useEffect(() => {
-    renderDone?.();
-  }, [renderDone]);
+  componentDidUpdate() {
+    this.state.renderDone?.();
+  }
 
-  return (
-    <>
-      <p>
-        <h1>Topics</h1>
+  render() {
+    return (
+      <>
+        <h1>My panel</h1>
         <ul>
-          {topics?.map((topic) => (
+          {this.state.topics?.map((topic) => (
             <li>
               <code>{topic.name}</code>
             </li>
           ))}
         </ul>
-        {_messages?.map((messageEvent) => (
+        {this.state.messages?.map((messageEvent) => (
           <>
             <h1>Messages</h1>
             <code>{(messageEvent.message as StdMsgString).data}</code>
@@ -112,11 +136,16 @@ function ExamplePanel(
             <NodeList message={(messageEvent.message as StdMsgString).data} />
           </>
         ))}
-      </p>
-    </>
-  );
+        <PreviewTime previewTime={this.state.previewTime} />
+      </>
+    )
+  }
+}
+
+function PreviewTime(props: { previewTime?: number  }) {
+  return <p>Preview time: {props.previewTime ?? "No preview time yet"} </p>
 }
 
 export function initExamplePanel(context: PanelExtensionContext) {
-  ReactDOM.render(<ExamplePanel context={context} />, context.panelElement);
+  ReactDOM.render(<SystemViewerPanel context={context} />, context.panelElement);
 }
