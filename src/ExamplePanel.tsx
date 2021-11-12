@@ -89,6 +89,9 @@ class SystemViewerPanel extends Component<SystemViewerProps, SystemViewerState> 
 
   componentDidMount() {
     this.props.context.onRender = (renderState: RenderState, done) => {
+      if (renderState.topics && renderState.topics !== this.state.topics) {
+        this.setState({ topics: renderState.topics })
+      }
       if (renderState.currentFrame && renderState.currentFrame.length > 0) {
         this.setState({messages: renderState.currentFrame});
       }
