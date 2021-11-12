@@ -64,7 +64,7 @@ class NodeList extends Component<NodeListProps, NodeListState> {
 
 type SystemViewerProps = {
   context: PanelExtensionContext;
-}
+};
 
 type SystemViewerState = {
   topics?: readonly Topic[];
@@ -72,10 +72,10 @@ type SystemViewerState = {
   allMessages?: readonly MessageEvent<unknown>[];
   renderDone?: (() => void);
   previewTime?: number;
-}
+};
 
-class SystemViewerPanel extends Component<SystemViewerProps, SystemViewerState> {
-
+class SystemViewerPanel
+  extends Component<SystemViewerProps, SystemViewerState> {
   constructor(props: any) {
     super(props);
     this.state = {
@@ -90,13 +90,16 @@ class SystemViewerPanel extends Component<SystemViewerProps, SystemViewerState> 
   componentDidMount() {
     this.props.context.onRender = (renderState: RenderState, done) => {
       if (renderState.topics && renderState.topics !== this.state.topics) {
-        this.setState({ topics: renderState.topics })
+        this.setState({ topics: renderState.topics });
       }
       if (renderState.currentFrame && renderState.currentFrame.length > 0) {
-        this.setState({messages: renderState.currentFrame});
+        this.setState({ messages: renderState.currentFrame });
       }
-      if (renderState.allFrames && renderState.allFrames.length > 0 && renderState.allFrames !== this.state.allMessages) {
-        this.setState({allMessages: renderState.allFrames});
+      if (
+        renderState.allFrames && renderState.allFrames.length > 0 &&
+        renderState.allFrames !== this.state.allMessages
+      ) {
+        this.setState({ allMessages: renderState.allFrames });
       }
       this.setState({ previewTime: renderState.previewTime }, () => {
         if (this.state.previewTime && this.props.context.seekPlayback) {
@@ -104,7 +107,7 @@ class SystemViewerPanel extends Component<SystemViewerProps, SystemViewerState> 
         }
       });
       this.setState({ renderDone: done });
-    }
+    };
     this.props.context.watch("topics");
     this.props.context.watch("currentFrame");
     this.props.context.watch("allFrames");
@@ -117,7 +120,9 @@ class SystemViewerPanel extends Component<SystemViewerProps, SystemViewerState> 
   }
 
   render() {
-    const messages = this.state.messages?.map((message) => (message.message as StdMsgString).data);
+    const messages = this.state.messages?.map((message) =>
+      (message.message as StdMsgString).data
+    );
 
     return (
       <>
@@ -129,7 +134,7 @@ class SystemViewerPanel extends Component<SystemViewerProps, SystemViewerState> 
             </li>
           ))}
         </ul>
-        {messages?.map(message => (
+        {messages?.map((message) => (
           <>
             <h1>Message</h1>
             <code>{message}</code>
@@ -139,14 +144,17 @@ class SystemViewerPanel extends Component<SystemViewerProps, SystemViewerState> 
         ))}
         <PreviewTime previewTime={this.state.previewTime} />
       </>
-    )
+    );
   }
 }
 
-function PreviewTime(props: { previewTime?: number  }) {
-  return <p>Preview time: {props.previewTime ?? "No preview time yet"} </p>
+function PreviewTime(props: { previewTime?: number }) {
+  return <p>Preview time: {props.previewTime ?? "No preview time yet"}</p>;
 }
 
 export function initExamplePanel(context: PanelExtensionContext) {
-  ReactDOM.render(<SystemViewerPanel context={context} />, context.panelElement);
+  ReactDOM.render(
+    <SystemViewerPanel context={context} />,
+    context.panelElement,
+  );
 }
