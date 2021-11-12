@@ -95,13 +95,12 @@ class SystemViewerPanel extends Component<SystemViewerProps, SystemViewerState> 
       if (renderState.allFrames && renderState.allFrames.length > 0 && renderState.allFrames !== this.state.allMessages) {
         this.setState({allMessages: renderState.allFrames});
       }
-      if (renderState.previewTime !== undefined) {
-        this.setState({previewTime: renderState.previewTime});
-      }
-      this.setState({
-        topics: renderState.topics,
-        renderDone: done,
+      this.setState({ previewTime: renderState.previewTime }, () => {
+        if (this.state.previewTime && this.props.context.seekPlayback) {
+          this.props.context.seekPlayback(this.state.previewTime);
+        }
       });
+      this.setState({ renderDone: done });
     }
     this.props.context.watch("topics");
     this.props.context.watch("currentFrame");
