@@ -2,6 +2,7 @@ import {
   MessageEvent,
   PanelExtensionContext,
   RenderState,
+  Time,
   Topic,
 } from "@foxglove/studio";
 import { Component } from "react";
@@ -11,56 +12,10 @@ type StdMsgString = {
   data: string;
 };
 
-type Message = {
+type EventMessage = {
   event: "create node" | "destroy node" | "register topic";
   [key: string]: string;
 };
-type NodeListProps = {
-  message: string;
-};
-type NodeListState = {
-  nodes: string[];
-};
-
-class NodeList extends Component<NodeListProps, NodeListState> {
-  constructor(props: NodeListProps) {
-    super(props);
-    this.state = {
-      nodes: [],
-    };
-  }
-
-  // Documentation for this function is here:
-  // https://reactjs.org/docs/react-component.html#static-getderivedstatefromprops
-  static getDerivedStateFromProps(props: NodeListProps, state: NodeListState) {
-    console.log("getDerivedStateFromProps", props, state);
-    const message: Message = JSON.parse(props.message);
-    if (message.event === "create node") {
-      const nodeName = message.node!;
-      if (!state.nodes.includes(nodeName)) {
-        state.nodes.push(nodeName);
-        console.log("create node", nodeName, state);
-      }
-    } else if (message.event === "destroy node") {
-      const nodeName = message.node!;
-      state.nodes = state.nodes.filter((node) => node !== nodeName);
-      console.log("destroy node", nodeName, state);
-    } else if (message.event === "register topic") {
-      // TODO: register topic
-    }
-    return state;
-  }
-  render() {
-    return (
-      <>
-        <h1>Node viewer</h1>
-        <ul>
-          {this.state.nodes.map((node) => <li>{node}</li>)}
-        </ul>
-      </>
-    );
-  }
-}
 
 type SystemViewerProps = {
   context: PanelExtensionContext;
@@ -69,9 +24,11 @@ type SystemViewerProps = {
 type SystemViewerState = {
   topics?: readonly Topic[];
   messages?: readonly MessageEvent<unknown>[];
+  messagesSoFar?: readonly MessageEvent<unknown>[];
   allMessages?: readonly MessageEvent<unknown>[];
   renderDone?: (() => void);
   previewTime?: number;
+  nodes: string[];
 };
 
 class SystemViewerPanel
@@ -81,9 +38,11 @@ class SystemViewerPanel
     this.state = {
       topics: [],
       messages: [],
+      messagesSoFar: [],
       allMessages: [],
       renderDone: undefined,
       previewTime: undefined,
+      nodes: [],
     };
   }
 
@@ -93,7 +52,19 @@ class SystemViewerPanel
         this.setState({ topics: renderState.topics });
       }
       if (renderState.currentFrame && renderState.currentFrame.length > 0) {
-        this.setState({ messages: renderState.currentFrame });
+        this.setState({
+          messages: renderState.currentFrame,
+          messagesSoFar:
+            this.state.messagesSoFar?.concat(renderState.currentFrame) ??
+              renderState.currentFrame,
+        });
+        const nodes = this.updateNodesFromMessage(
+          renderState.currentFrame,
+          this.state.nodes,
+        );
+        if (nodes !== this.state.nodes) {
+          this.setState({ nodes });
+        }
       }
       if (
         renderState.allFrames && renderState.allFrames.length > 0 &&
@@ -104,6 +75,13 @@ class SystemViewerPanel
       this.setState({ previewTime: renderState.previewTime }, () => {
         if (this.state.previewTime && this.props.context.seekPlayback) {
           this.props.context.seekPlayback(this.state.previewTime);
+          const { nodes, messagesSoFar } = this.updateNodesToTime(
+            this.state.previewTime,
+            this.state.allMessages,
+          );
+          if (nodes !== this.state.nodes) {
+            this.setState({ nodes, messagesSoFar });
+          }
         }
       });
       this.setState({ renderDone: done });
@@ -115,18 +93,91 @@ class SystemViewerPanel
     this.props.context.subscribe(["system_events"]);
   }
 
+  private updateNodesToTime(
+    time: number,
+    allMessages: readonly MessageEvent<unknown>[] | undefined,
+  ) {
+    const timeObject = this.getTimeFromNumber(time);
+    const rawMessages = this.getAllMessagesBeforeTime(allMessages, timeObject);
+    const nodes = this.updateNodesFromMessage(rawMessages, []);
+    return { nodes, messagesSoFar: rawMessages };
+  }
+
   componentDidUpdate() {
     this.state.renderDone?.();
   }
 
+  getTimeFromNumber(num: number): Time {
+    const seconds = Math.floor(num);
+    const nanoseconds = Math.floor((num - seconds) * 1_000_000_000);
+    return { sec: seconds, nsec: nanoseconds } as Time;
+  }
+
+  getMessageData(
+    messages: readonly MessageEvent<unknown>[] | undefined,
+  ): string[] {
+    return messages?.map((message) => (message.message as StdMsgString).data) ??
+      [];
+  }
+
+  getAllMessagesBeforeTime(
+    allMessages: readonly MessageEvent<unknown>[] | undefined,
+    time: Time,
+  ) {
+    const messages =
+      allMessages?.filter((message) =>
+        this.compareTime(message.receiveTime, time) !== 1
+      ) ?? [];
+    return messages as MessageEvent<unknown>[];
+  }
+
+  compareTime(time1: Time, time2: Time) {
+    if (time1.sec < time2.sec) {
+      return -1;
+    } else if (time1.sec > time2.sec) {
+      return 1;
+    } else {
+      if (time1.nsec < time2.nsec) {
+        return -1;
+      } else if (time1.nsec > time2.nsec) {
+        return 1;
+      } else {
+        return 0;
+      }
+    }
+  }
+
+  updateNodesFromMessage(
+    rawMessages: readonly MessageEvent<unknown>[] | undefined,
+    nodes: string[],
+  ) {
+    const messages = this.getMessageData(rawMessages);
+    if (!messages) {
+      return nodes;
+    }
+    messages.forEach((message) => {
+      const parsedMessage: EventMessage = JSON.parse(message);
+      if (
+        parsedMessage.event === "create node" &&
+        !nodes.includes(parsedMessage.node!)
+      ) {
+        nodes.push(parsedMessage.node!);
+      } else if (parsedMessage.event === "destroy node") {
+        nodes = nodes.filter((node) => node !== parsedMessage.node!);
+      } else if (parsedMessage.event === "register topic") {
+        // TODO: register topic
+      }
+    });
+    return nodes;
+  }
+
   render() {
-    const messages = this.state.messages?.map((message) =>
-      (message.message as StdMsgString).data
-    );
+    const messages = this.getMessageData(this.state.messagesSoFar);
 
     return (
       <>
-        <h1>My panel</h1>
+        <h1>System Viewer</h1>
+        <h2>Topics</h2>
         <ul>
           {this.state.topics?.map((topic) => (
             <li>
@@ -134,14 +185,21 @@ class SystemViewerPanel
             </li>
           ))}
         </ul>
-        {messages?.map((message) => (
-          <>
-            <h1>Message</h1>
-            <code>{message}</code>
-            <br />
-            <NodeList message={message} />
-          </>
-        ))}
+
+        <h2>Messages received</h2>
+        <ul>
+          {messages.map((message) => (
+            <li>
+              <code>{message}</code>
+            </li>
+          ))}
+        </ul>
+
+        <h2>Nodes</h2>
+        <ul>
+          {this.state.nodes.map((node) => <li>{node}</li>)}
+        </ul>
+
         <PreviewTime previewTime={this.state.previewTime} />
       </>
     );
