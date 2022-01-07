@@ -1,11 +1,9 @@
 import { ExtensionContext } from "@foxglove/studio";
-import { initExamplePanel } from "./SystemViewerPanel";
+import { initSystemViewerPanel } from "./SystemViewerPanel";
 
 export function activate(extensionContext: ExtensionContext) {
   extensionContext.registerPanel({
     name: "system-viewer",
-    initPanel: initExamplePanel,
+    initPanel: initSystemViewerPanel,
   });
 }
-
-import _Panel from "./mjindex";

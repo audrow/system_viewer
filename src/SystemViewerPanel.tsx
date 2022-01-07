@@ -8,6 +8,8 @@ import {
 import { Component } from "react";
 import ReactDOM from "react-dom";
 
+import MjPanel from "./mjindex";
+
 type StdMsgString = {
   data: string;
 };
@@ -210,7 +212,7 @@ function PreviewTime(props: { previewTime?: number }) {
   return <p>Preview time: {props.previewTime ?? "No preview time yet"}</p>;
 }
 
-export function initExamplePanel(context: PanelExtensionContext) {
+export function initSystemViewerPanel(context: PanelExtensionContext) {
   ReactDOM.render(
     <SystemViewerPanel context={context} />,
     context.panelElement,
