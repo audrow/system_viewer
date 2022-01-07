@@ -11,7 +11,7 @@ import ReactFlow, { ReactFlowProvider, Elements, Background } from 'react-flow-r
 // SystemView
 import initialElements from './initial-elements';
 import { createGraphLayout } from "./layout";
-import { SystemViewToolbar } from "./SystemViewToolbar";
+// import { SystemViewToolbar } from "./SystemViewToolbar";
 import './layouting.css';
 
 type Props = {
@@ -21,7 +21,7 @@ type Props = {
 
 const SystemViewPanel = (props: Props) => {
 
-  const { config, saveConfig } = props
+  // const { config, saveConfig } = props
   const [elements, setElements] = useState<Elements>(initialElements)
 
   useEffect(() => {
@@ -59,12 +59,12 @@ const SystemViewPanel = (props: Props) => {
           >
             <Background color="#aaa" gap={16} />
           </ReactFlow>
-          <SystemViewToolbar
+          {/* <SystemViewToolbar
             nodes={elements}
             edges={[]}
             lrOrientation={true}
             onToggleOrientation={toggleOrientation}
-          />
+          /> */}
         </ReactFlowProvider>
       </div>
     )

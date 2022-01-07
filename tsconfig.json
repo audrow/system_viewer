@@ -13,8 +13,8 @@
     "noImplicitAny": true,
     "noImplicitReturns": true,
     "noUncheckedIndexedAccess": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "noUnusedLocals": false, // TODO: enable this
+    "noUnusedParameters": false, // TODO: enable this
     "forceConsistentCasingInFileNames": true
   }
 }

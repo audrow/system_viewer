@@ -7,3 +7,5 @@ export function activate(extensionContext: ExtensionContext) {
     initPanel: initExamplePanel,
   });
 }
+
+import _Panel from "./mjindex";
