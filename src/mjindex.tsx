@@ -21,7 +21,7 @@ type Props = {
 
 const SystemViewPanel = (props: Props) => {
 
-  // const { config, saveConfig } = props
+  const { config, saveConfig } = props
   const [elements, setElements] = useState<Elements>(initialElements)
 
   useEffect(() => {
@@ -55,16 +55,16 @@ const SystemViewPanel = (props: Props) => {
             elements={elements}
             snapToGrid={true}
             snapGrid={[15, 15]}
-          //{...otherProps}
+          // {...otherProps}
           >
             <Background color="#aaa" gap={16} />
           </ReactFlow>
-          {/* <SystemViewToolbar
+          <SystemViewToolbar
             nodes={elements}
             edges={[]}
             lrOrientation={true}
             onToggleOrientation={toggleOrientation}
-          /> */}
+          />
         </ReactFlowProvider>
       </div>
     )
