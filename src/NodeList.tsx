@@ -29,9 +29,9 @@ import Icon from "@foxglove/studio-base/src/components/Icon";
 
 // MDI Icons
 // import SelectAllIcon from "@mdi/svg/svg/format-list-bulleted-square.svg";
-import SelectAllIcon from "@emotion-icons/fluentui-system-regular/SelectAllOn";
+import {SelectAllOn as SelectAllIcon} from "@emotion-icons/fluentui-system-regular/SelectAllOn";
 // import SelectNoneIcon from "@mdi/svg/svg/format-list-checkbox.svg";
-import SelectNoneIcon from "@emotion-icons/fluentui-system-regular/SelectAllOff";
+import {SelectAllOff as SelectNoneIcon} from "@emotion-icons/fluentui-system-regular/SelectAllOff";
 
 const exampleChildClass = mergeStyles({
   display: 'block',

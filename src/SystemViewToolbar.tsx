@@ -34,23 +34,23 @@ import { NodeList } from "./NodeList";
 // Icons
 // Used this to preview the icons: https://emotion-icons.dev/
 // import ArrowLeftRightIcon from "@mdi/svg/svg/arrow-left-right.svg";
-import ArrowLeftRightIcon from "@emotion-icons/bootstrap/ArrowRight";
+import {ArrowRight as ArrowLeftRightIcon} from "@emotion-icons/bootstrap/ArrowRight";
 // import ArrowUpDownIcon from "@mdi/svg/svg/arrow-up-down.svg";
-import ArrowUpDownIcon from "@emotion-icons/bootstrap/ArrowDown";
+import {ArrowDown as ArrowUpDownIcon} from "@emotion-icons/bootstrap/ArrowDown";
 // import FitviewIcon from "./assets/icons/fitview.svg";
-import FitviewIcon from "@emotion-icons/fluentui-system-regular/PageFit";
+import {PageFit as FitviewIcon} from "@emotion-icons/fluentui-system-regular/PageFit";
 // import GroupIcon from "@mdi/svg/svg/group.svg";
-import GroupIcon from "@emotion-icons/fa-regular/ObjectGroup";
+import {ObjectGroup as GroupIcon} from "@emotion-icons/fa-regular/ObjectGroup";
 // import LockIcon from "@mdi/svg/svg/lock-outline.svg";
-import LockIcon from "@emotion-icons/bootstrap/Lock";
+import {Lock as LockIcon} from "@emotion-icons/bootstrap/Lock";
 // import MinusIcon from "@mdi/svg/svg/minus.svg";
-import MinusIcon from "@emotion-icons/boxicons-regular/Minus";
+import {Minus as MinusIcon} from "@emotion-icons/boxicons-regular/Minus";
 // import PlusIcon from "@mdi/svg/svg/plus.svg";
-import PlusIcon from "@emotion-icons/boxicons-regular/Plus";
+import {Plus as PlusIcon} from "@emotion-icons/boxicons-regular/Plus";
 // import SelectionIcon from "@mdi/svg/svg/checkbox-multiple-marked-outline.svg";
-import SelectionIcon from "@emotion-icons/boxicons-regular/SelectMultiple";
+import {SelectMultiple as SelectionIcon} from "@emotion-icons/boxicons-regular/SelectMultiple";
 // import UnlockIcon from "@mdi/svg/svg/lock-open-variant-outline.svg";
-import UnlockIcon from "@emotion-icons/bootstrap/Unlock";
+import {Unlock as UnlockIcon} from "@emotion-icons/bootstrap/Unlock";
 
 export type Props = {
   nodes: any[]
