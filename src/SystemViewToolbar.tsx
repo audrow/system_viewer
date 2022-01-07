@@ -64,6 +64,7 @@ export type Props = {
   onToggleOrientation?: (lrOrientation: boolean) => void
 };
 
+
 export const SystemViewToolbar: React.FC<Props> = (props: Props) => {
 
   const [lrOrientation, setLROrientation] = useState<boolean>(props.lrOrientation);
@@ -117,12 +118,12 @@ export const SystemViewToolbar: React.FC<Props> = (props: Props) => {
       <br />
       <ExpandingToolbar
         tooltip="Group nodes"
-        icon={
+        iconName={
           <FoxgloveIcon style={{ color: "white" }}>
             <GroupIcon />
           </FoxgloveIcon>
         }
-        className={styles.buttons}
+        // className={styles.button}
         selectedTab={selectedTab}
         onSelectTab={(newSelectedTab) => {
           setSelectedTab(newSelectedTab!)
@@ -141,12 +142,11 @@ export const SystemViewToolbar: React.FC<Props> = (props: Props) => {
       </ExpandingToolbar>
       <ExpandingToolbar
         tooltip="Select nodes to display"
-        icon={
+        iconName={
           <FoxgloveIcon style={{ color: "white" }}>
             <SelectionIcon />
           </FoxgloveIcon>
         }
-        className={styles.buttons}
         selectedTab={selectedTab2}
         onSelectTab={(newSelectedTab) => {
           setSelectedTab2(newSelectedTab!)
@@ -175,30 +175,30 @@ export const SystemViewToolbar: React.FC<Props> = (props: Props) => {
           </>
         </ToolGroup>
       </ExpandingToolbar>
-      <div className={styles.buttons}>
-        <Button className={styles.iconButton} tooltip="Change graph orientation" onClick={onToggleOrientation}>
+      <div className={styles.button}>
+        <Button className={styles.button} tooltip="Change graph orientation" onClick={onToggleOrientation}>
           <FoxgloveIcon style={{ color: "white" }} size="small">
             {lrOrientation ? <ArrowLeftRightIcon /> : <ArrowUpDownIcon />}
           </FoxgloveIcon>
         </Button>
       </div>
-      <div className={styles.buttons}>
-        <Button className={styles.iconButton} tooltip="Zoom in graph" onClick={onZoomInHandler}>
+      <div className={styles.button}>
+        <Button className={styles.button} tooltip="Zoom in graph" onClick={onZoomInHandler}>
           <FoxgloveIcon style={{ color: "white" }} size="small">
             <PlusIcon />
           </FoxgloveIcon>
         </Button>
-        <Button className={styles.iconButton} tooltip="Zoom out graph" onClick={onZoomOutHandler}>
+        <Button className={styles.button} tooltip="Zoom out graph" onClick={onZoomOutHandler}>
           <FoxgloveIcon style={{ color: "white" }} size="small">
             <MinusIcon />
           </FoxgloveIcon>
         </Button>
-        <Button className={styles.iconButton} tooltip="Fit graph to window" onClick={onFitViewHandler}>
+        <Button className={styles.button} tooltip="Fit graph to window" onClick={onFitViewHandler}>
           <FoxgloveIcon style={{ color: "white" }} size="small">
             <FitviewIcon />
           </FoxgloveIcon>
         </Button>
-        <Button className={styles.iconButton} tooltip="Lock/unlock the node positions" onClick={onInteractiveChangeHandler}>
+        <Button className={styles.button} tooltip="Lock/unlock the node positions" onClick={onInteractiveChangeHandler}>
           <FoxgloveIcon style={{ color: "white" }} size="small">
             {isInteractive ? <UnlockIcon /> : <LockIcon />}
           </FoxgloveIcon>

@@ -224,6 +224,7 @@ export class NodeList extends React.Component<Props, INodeListState> {
   };
 
   private _onItemInvoked(item: INodeListItem): void {
-    alert(`Item invoked: ${item.name}`);
+    // TODO: Enable this in a more satisfying way - previously was alert
+    console.error(`Item invoked: ${item.name}`);
   }
 }
