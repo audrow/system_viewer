@@ -1,10 +1,10 @@
 {
-  "name": "fox-test",
-  "displayName": "fox-test",
-  "description": "",
-  "publisher": "unknown",
+  "name": "system-viewer",
+  "displayName": "System Viewer",
+  "description": "Introspect the ROS network",
+  "publisher": "Open Robotics",
   "version": "0.0.0",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "main": "./dist/extension.js",
   "scripts": {
     "build": "fox build",
