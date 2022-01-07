@@ -33,5 +33,9 @@
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "typescript": "4.4.4"
+  },
+  "dependencies": {
+    "@foxglove/studio-base": "^0.25.1",
+    "react-flow-renderer": "^9.7.2"
   }
 }

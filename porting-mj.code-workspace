@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../studio/packages/studio-base/src/panels/SystemView"
+		}
+	],
+  "settings": {}
+}
