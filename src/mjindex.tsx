@@ -11,7 +11,7 @@ import ReactFlow, { ReactFlowProvider, Elements, Background } from 'react-flow-r
 // SystemView
 import initialElements from './initial-elements';
 import { createGraphLayout } from "./layout";
-// import { SystemViewToolbar } from "./SystemViewToolbar";
+import { SystemViewToolbar } from "./SystemViewToolbar";
 import './layouting.css';
 
 type Props = {
