@@ -17,22 +17,25 @@ type EventMessage = {
 
 function SystemViewerPanel({ context }: { context: PanelExtensionContext }): JSX.Element {
 
-  // Fox extension variables
   const [renderDone, setRenderDone] = useState<(() => void) | undefined>();
-  const [currentFrame, setCurrentFrame] = useState<readonly MessageEvent<unknown>[] | undefined>();
-  const [allFrames, setAllFrames] = useState<readonly MessageEvent<unknown>[] | undefined>([]);
-  const [previewTime, setPreviewTime] = useState<number|undefined>();
 
-  // My state variables
   const [nodes, setNodes] = useState<string[]>([]);
 
   useLayoutEffect(() => {
     context.onRender = (renderState: RenderState, done) => {
-      // It wasn't working for me to set the nodes here - I'm not sure why
-      setAllFrames(renderState.allFrames);
-      setCurrentFrame(renderState.currentFrame);
-      setPreviewTime(renderState.previewTime);
       setRenderDone(done);
+      if (renderState.currentFrame && renderState.currentFrame.length > 0) {
+        setNodes(
+          updateNodesFromMessage(renderState.currentFrame, nodes))
+      }
+      if (renderState.previewTime && context.seekPlayback) {
+        context.seekPlayback(renderState.previewTime);
+        setNodes(
+          updateNodesToTime(
+            renderState.previewTime,
+            renderState.allFrames
+          ));
+      }
     };
     context.watch("currentFrame");
     context.watch("allFrames");
@@ -44,28 +47,6 @@ function SystemViewerPanel({ context }: { context: PanelExtensionContext }): JSX
     renderDone?.();
   }, [renderDone])
 
-  useEffect(() => {
-    if (currentFrame && currentFrame.length > 0) {
-      setNodes( // react bails out if the nodes are the same
-        updateNodesFromMessage(currentFrame, nodes))
-    }
-  }, [currentFrame]);
-
-  useEffect(() => {
-    if (previewTime && context.seekPlayback) {
-      context.seekPlayback(previewTime);
-      setNodes( // react bails out if the nodes are the same
-        updateNodesToTime(
-          previewTime,
-          allFrames
-        ));
-    }
-  }, [previewTime])
-
-  useEffect(() => {
-    console.log("nodes state", nodes);
-  }, [nodes])
-
   return (
     <>
       <h1>System Viewer</h1>
@@ -73,7 +54,6 @@ function SystemViewerPanel({ context }: { context: PanelExtensionContext }): JSX
       <ul>
         {nodes.map((node) => <li>{node}</li>)}
       </ul>
-      <PreviewTime previewTime={previewTime} />
     </>
   )
 }
@@ -101,7 +81,7 @@ function updateNodesFromMessage(
     }
   });
   console.log("nodes", nodes);
-  return nodes;
+  return [...nodes];
 }
 
 function getMessageData(
@@ -151,10 +131,6 @@ function compareTime(time1: Time, time2: Time) {
       return 0;
     }
   }
-}
-
-function PreviewTime(props: { previewTime?: number }) {
-  return <p>Preview time: {props.previewTime ?? "No preview time yet"}</p>;
 }
 
 export function initSystemViewerPanel(context: PanelExtensionContext) {
