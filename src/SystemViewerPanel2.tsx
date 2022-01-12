@@ -173,7 +173,7 @@ function PreviewTime(props: { previewTime?: number }) {
   return <p>Preview time: {props.previewTime ?? "No preview time yet"}</p>;
 }
 
-export function initExamplePanel(context: PanelExtensionContext) {
+export function initSystemViewerPanel(context: PanelExtensionContext) {
   ReactDOM.render(
     <SystemViewerPanel context={context} />,
     context.panelElement,
