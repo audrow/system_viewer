@@ -7,7 +7,7 @@ import {
 import { useEffect, useLayoutEffect, useState } from "react";
 import ReactDOM from "react-dom";
 
-import { StdMsgString } from "./types/StdMsgString";
+import RosStdMsgString from "./types/RosStdMsgsString";
 // import { Event } from "./types/events";
 
 type EventMessage = {
@@ -15,10 +15,11 @@ type EventMessage = {
   [key: string]: string;
 };
 
+
+
 function SystemViewerPanel({ context }: { context: PanelExtensionContext }): JSX.Element {
 
   const [renderDone, setRenderDone] = useState<(() => void) | undefined>();
-
   const [nodes, setNodes] = useState<string[]>([]);
 
   useLayoutEffect(() => {
@@ -87,7 +88,7 @@ function updateNodesFromMessage(
 function getMessageData(
   messages: readonly MessageEvent<unknown>[] | undefined,
 ): string[] {
-  return messages?.map((message) => (message.message as StdMsgString).data) ??
+  return messages?.map((message) => (message.message as RosStdMsgString).data) ??
     [];
 }
 
