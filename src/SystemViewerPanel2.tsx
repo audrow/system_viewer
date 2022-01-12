@@ -15,11 +15,11 @@ type EventMessage = {
   [key: string]: string;
 };
 
-function SystemViewerPanel2({ context }: { context: PanelExtensionContext }): JSX.Element {
+function SystemViewerPanel({ context }: { context: PanelExtensionContext }): JSX.Element {
 
   // Fox extension variables
   const [renderDone, setRenderDone] = useState<(() => void) | undefined>();
-  // const [currentFrame, setCurrentFrame] = useState<readonly MessageEvent<unknown>[] | undefined>();
+  const [currentFrame, setCurrentFrame] = useState<readonly MessageEvent<unknown>[] | undefined>();
   const [allFrames, setAllFrames] = useState<readonly MessageEvent<unknown>[] | undefined>([]);
   const [previewTime, setPreviewTime] = useState<number|undefined>();
 
@@ -28,15 +28,10 @@ function SystemViewerPanel2({ context }: { context: PanelExtensionContext }): JS
 
   useLayoutEffect(() => {
     context.onRender = (renderState: RenderState, done) => {
-      // Note if these are not updated react will bail
-      // Also, it wasn't working for me to set the nodes here - I'm not sure why
+      // It wasn't working for me to set the nodes here - I'm not sure why
       setAllFrames(renderState.allFrames);
-      // setCurrentFrame(renderState.currentFrame);
+      setCurrentFrame(renderState.currentFrame);
       setPreviewTime(renderState.previewTime);
-      if (renderState.currentFrame && renderState.currentFrame.length > 0) {
-        setNodes( // react bails out if the nodes are the same
-          updateNodesFromMessage(renderState.currentFrame, nodes))
-      }
       setRenderDone(done);
     };
     context.watch("currentFrame");
@@ -49,12 +44,12 @@ function SystemViewerPanel2({ context }: { context: PanelExtensionContext }): JS
     renderDone?.();
   }, [renderDone])
 
-  // useEffect(() => {
-  //   if (currentFrame && currentFrame.length > 0) {
-  //     setNodes( // react bails out if the nodes are the same
-  //       updateNodesFromMessage(currentFrame, nodes))
-  //   }
-  // }, [currentFrame]);
+  useEffect(() => {
+    if (currentFrame && currentFrame.length > 0) {
+      setNodes( // react bails out if the nodes are the same
+        updateNodesFromMessage(currentFrame, nodes))
+    }
+  }, [currentFrame]);
 
   useEffect(() => {
     if (previewTime && context.seekPlayback) {
@@ -164,7 +159,7 @@ function PreviewTime(props: { previewTime?: number }) {
 
 export function initSystemViewerPanel(context: PanelExtensionContext) {
   ReactDOM.render(
-    <SystemViewerPanel2 context={context} />,
+    <SystemViewerPanel context={context} />,
     context.panelElement,
   );
 }
