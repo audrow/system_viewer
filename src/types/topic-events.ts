@@ -1,18 +1,18 @@
-import Topic from './Topic';
+import Topic from "./Topic";
 
-export type TopicEvent = Pick<Topic, 'id'> | {
+export type TopicEvent = Pick<Topic, "id"> | {
   event: string;
-}
+};
 
 export type CreateTopicEvent = {
   event: "create";
-} | Topic
+} | Topic;
 
 export type DeleteTopicEvent = {
   event: "destroy";
-} | Pick<Topic, 'id'>
+} | Pick<Topic, "id">;
 
 export type UpdateTopicEvent = {
   event: "update";
   data: string;
-} | Pick<Topic, 'id'>
+} | Pick<Topic, "id">;

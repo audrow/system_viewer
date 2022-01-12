@@ -15,10 +15,9 @@ type EventMessage = {
   [key: string]: string;
 };
 
-
-
-function SystemViewerPanel({ context }: { context: PanelExtensionContext }): JSX.Element {
-
+function SystemViewerPanel(
+  { context }: { context: PanelExtensionContext },
+): JSX.Element {
   const [renderDone, setRenderDone] = useState<(() => void) | undefined>();
   const [nodes, setNodes] = useState<string[]>([]);
 
@@ -27,15 +26,17 @@ function SystemViewerPanel({ context }: { context: PanelExtensionContext }): JSX
       setRenderDone(done);
       if (renderState.currentFrame && renderState.currentFrame.length > 0) {
         setNodes(
-          updateNodesFromMessage(renderState.currentFrame, nodes))
+          updateNodesFromMessage(renderState.currentFrame, nodes),
+        );
       }
       if (renderState.previewTime && context.seekPlayback) {
         context.seekPlayback(renderState.previewTime);
         setNodes(
           updateNodesToTime(
             renderState.previewTime,
-            renderState.allFrames
-          ));
+            renderState.allFrames,
+          ),
+        );
       }
     };
     context.watch("currentFrame");
@@ -46,7 +47,7 @@ function SystemViewerPanel({ context }: { context: PanelExtensionContext }): JSX
 
   useEffect(() => {
     renderDone?.();
-  }, [renderDone])
+  }, [renderDone]);
 
   return (
     <>
@@ -56,7 +57,7 @@ function SystemViewerPanel({ context }: { context: PanelExtensionContext }): JSX
         {nodes.map((node) => <li>{node}</li>)}
       </ul>
     </>
-  )
+  );
 }
 
 function updateNodesFromMessage(
@@ -88,7 +89,9 @@ function updateNodesFromMessage(
 function getMessageData(
   messages: readonly MessageEvent<unknown>[] | undefined,
 ): string[] {
-  return messages?.map((message) => (message.message as RosStdMsgString).data) ??
+  return messages?.map((message) =>
+    (message.message as RosStdMsgString).data
+  ) ??
     [];
 }
 
