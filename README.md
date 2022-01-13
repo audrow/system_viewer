@@ -1,4 +1,6 @@
-# fox-test
+# README
+
+You can find spoof data for this extension in [this gist](https://gist.github.com/audrow/f1725bffd5ebea6433dd7396f7700b3b).
 
 ## _A Foxglove Studio Extension_
 
