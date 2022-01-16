@@ -1,9 +1,11 @@
+import TopicData from "./TopicData";
+
 type Topic = {
   id: string;
-  name: string;
-  namespace: string;
+  topic: string;
   sourceId: string;
   destId: string;
+  data: Partial<TopicData>;
 };
 
 export default Topic;

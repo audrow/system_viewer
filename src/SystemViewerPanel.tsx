@@ -1,48 +1,54 @@
-import {
-  MessageEvent,
-  PanelExtensionContext,
-  RenderState,
-  Time,
-} from "@foxglove/studio";
+import { PanelExtensionContext, RenderState } from "@foxglove/studio";
 import { useEffect, useLayoutEffect, useState } from "react";
 import ReactDOM from "react-dom";
 
-import RosStdMsgString from "./types/RosStdMsgsString";
-// import { Event } from "./types/events";
-
-type EventMessage = {
-  event: "create node" | "destroy node" | "register topic";
-  [key: string]: string;
-};
+import { processNewFrames, updateToTime } from "./frame-utils";
+import type Node from "./types/Node";
+import type Topic from "./types/Topic";
 
 function SystemViewerPanel(
   { context }: { context: PanelExtensionContext },
 ): JSX.Element {
   const [renderDone, setRenderDone] = useState<(() => void) | undefined>();
-  const [nodes, setNodes] = useState<string[]>([]);
+  const [nodes, setNodes] = useState<Node[]>([]);
+  const [topics, setTopics] = useState<Topic[]>([]);
+
+  const nodeEventsTopic = "system_viewer/events/node";
+  const topicEventsTopic = "system_viewer/events/topic";
 
   useLayoutEffect(() => {
     context.onRender = (renderState: RenderState, done) => {
       setRenderDone(done);
-      if (renderState.currentFrame && renderState.currentFrame.length > 0) {
-        setNodes(
-          updateNodesFromMessage(renderState.currentFrame, nodes),
-        );
-      }
+
       if (renderState.previewTime && context.seekPlayback) {
         context.seekPlayback(renderState.previewTime);
-        setNodes(
-          updateNodesToTime(
-            renderState.previewTime,
-            renderState.allFrames,
-          ),
-        );
+        const { nodes: newNodes, topics: newTopics } = updateToTime({
+          time: renderState.previewTime,
+          frames: renderState.allFrames,
+          nodeEventsTopic,
+          topicEventsTopic,
+        });
+        setNodes(newNodes);
+        setTopics(newTopics);
+      } else if (
+        renderState.currentFrame && renderState.currentFrame.length > 0
+      ) {
+        const { nodes: newNodes, topics: newTopics } = processNewFrames({
+          frames: renderState.currentFrame,
+          nodes,
+          topics,
+          nodeEventsTopic,
+          topicEventsTopic,
+        });
+        setNodes(newNodes);
+        setTopics(newTopics);
       }
     };
+
     context.watch("currentFrame");
     context.watch("allFrames");
     context.watch("previewTime");
-    context.subscribe(["system_events"]);
+    context.subscribe([nodeEventsTopic, topicEventsTopic]);
   }, []);
 
   useEffect(() => {
@@ -54,87 +60,18 @@ function SystemViewerPanel(
       <h1>System Viewer</h1>
       <h2>Nodes</h2>
       <ul>
-        {nodes.map((node) => <li>{node}</li>)}
+        {nodes.map((node) => <li>{node.name}</li>)}
+      </ul>
+      <h2>Topics</h2>
+      <ul>
+        {topics.map((topic) => (
+          <li>
+            {topic.topic} - data: {JSON.stringify(topic.data) || "<none>"}
+          </li>
+        ))}
       </ul>
     </>
   );
-}
-
-function updateNodesFromMessage(
-  rawMessages: readonly MessageEvent<unknown>[] | undefined,
-  nodes: string[],
-) {
-  const messages = getMessageData(rawMessages);
-  if (!messages) {
-    return nodes;
-  }
-  messages.forEach((message) => {
-    const parsedMessage: EventMessage = JSON.parse(message);
-    console.log("parsedMessage", parsedMessage);
-    if (
-      parsedMessage.event === "create node" &&
-      !nodes.includes(parsedMessage.node!)
-    ) {
-      nodes.push(parsedMessage.node!);
-    } else if (parsedMessage.event === "destroy node") {
-      nodes = nodes.filter((node) => node !== parsedMessage.node!);
-    } else if (parsedMessage.event === "register topic") {
-      // TODO: register topic
-    }
-  });
-  console.log("nodes", nodes);
-  return [...nodes];
-}
-
-function getMessageData(
-  messages: readonly MessageEvent<unknown>[] | undefined,
-): string[] {
-  return messages?.map((message) =>
-    (message.message as RosStdMsgString).data
-  ) ??
-    [];
-}
-
-function updateNodesToTime(
-  time: number,
-  allMessages: readonly MessageEvent<unknown>[] | undefined,
-) {
-  const timeObject = getTimeFromNumber(time);
-  const rawMessages = getAllMessagesBeforeTime(allMessages, timeObject);
-  return updateNodesFromMessage(rawMessages, []);
-}
-
-function getTimeFromNumber(num: number): Time {
-  const seconds = Math.floor(num);
-  const nanoseconds = Math.floor((num - seconds) * 1_000_000_000);
-  return { sec: seconds, nsec: nanoseconds } as Time;
-}
-
-function getAllMessagesBeforeTime(
-  allMessages: readonly MessageEvent<unknown>[] | undefined,
-  time: Time,
-) {
-  const messages =
-    allMessages?.filter((message) =>
-      compareTime(message.receiveTime, time) !== 1
-    ) ?? [];
-  return messages as MessageEvent<unknown>[];
-}
-
-function compareTime(time1: Time, time2: Time) {
-  if (time1.sec < time2.sec) {
-    return -1;
-  } else if (time1.sec > time2.sec) {
-    return 1;
-  } else {
-    if (time1.nsec < time2.nsec) {
-      return -1;
-    } else if (time1.nsec > time2.nsec) {
-      return 1;
-    } else {
-      return 0;
-    }
-  }
 }
 
 export function initSystemViewerPanel(context: PanelExtensionContext) {

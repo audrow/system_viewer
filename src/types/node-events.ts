@@ -1,18 +1,13 @@
 import Node from "./Node";
 
-export type NodeEvent = Pick<Node, "id"> | {
+export type NodeEvent = {
   event: string;
-};
+} & Pick<Node, "id">;
 
 export type CreateNodeEvent = {
   event: "create";
-} | Node;
+} & Node;
 
-export type DeleteNodeEvent = {
+export type DestroyNodeEvent = {
   event: "destroy";
-} | Pick<Node, "id">;
-
-export type UpdateNodeEvent = {
-  event: "update";
-  data: string;
-} | Pick<Node, "id">;
+} & Pick<Node, "id">;
