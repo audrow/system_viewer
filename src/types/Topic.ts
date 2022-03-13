@@ -1,4 +1,4 @@
-import TopicData from "./TopicData";
+import TopicData from './TopicData';
 
 type Topic = {
   id: string;

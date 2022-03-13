@@ -1,20 +1,14 @@
-import { MessageEvent, Time } from "@foxglove/studio";
-
-import type RosStdMsgString from "./types/RosStdMsgsString";
-import type Node from "./types/Node";
-import type Topic from "./types/Topic";
-
-import {
-  CreateNodeEvent,
-  DestroyNodeEvent,
-  NodeEvent,
-} from "./types/node-events";
+import {MessageEvent, Time} from '@foxglove/studio';
+import type Node from './types/Node';
+import {CreateNodeEvent, DestroyNodeEvent, NodeEvent} from './types/node-events';
+import type RosStdMsgString from './types/RosStdMsgsString';
+import type Topic from './types/Topic';
 import {
   CreateTopicEvent,
   DestroyTopicEvent,
   TopicEvent,
   UpdateTopicEvent,
-} from "./types/topic-events";
+} from './types/topic-events';
 
 export function processNewFrames(args: {
   frames: readonly MessageEvent<unknown>[];
@@ -22,23 +16,17 @@ export function processNewFrames(args: {
   nodeEventsTopic: string;
   topics: Topic[];
   topicEventsTopic: string;
-}): { nodes: Node[]; topics: Topic[] } {
+}): {nodes: Node[]; topics: Topic[]} {
   for (const frame of args.frames) {
     if (frame.topic === args.nodeEventsTopic) {
-      args.nodes = updateNodesFromFrame(
-        frame as MessageEvent<RosStdMsgString>,
-        args.nodes,
-      );
+      args.nodes = updateNodesFromFrame(frame as MessageEvent<RosStdMsgString>, args.nodes);
     } else if (frame.topic === args.topicEventsTopic) {
-      args.topics = updateTopicFromFrame(
-        frame as MessageEvent<RosStdMsgString>,
-        args.topics,
-      );
+      args.topics = updateTopicFromFrame(frame as MessageEvent<RosStdMsgString>, args.topics);
     } else {
       console.error(`Unknown topic ${frame.topic}`);
     }
   }
-  return { nodes: args.nodes, topics: args.topics };
+  return {nodes: args.nodes, topics: args.topics};
 }
 
 function updateNodesFromFrame(
@@ -51,7 +39,7 @@ function updateNodesFromFrame(
   }
   const parsedMessage: NodeEvent = JSON.parse(data);
   switch (parsedMessage.event) {
-    case "create":
+    case 'create':
       {
         const event = parsedMessage as CreateNodeEvent;
         if (nodes.every((node) => node.id !== event.id)) {
@@ -63,7 +51,7 @@ function updateNodesFromFrame(
         }
       }
       break;
-    case "destroy":
+    case 'destroy':
       {
         const event = parsedMessage as DestroyNodeEvent;
         nodes.forEach((node, index) => {
@@ -92,7 +80,7 @@ function updateTopicFromFrame(
   }
   const parsedMessage: TopicEvent = JSON.parse(data);
   switch (parsedMessage.event) {
-    case "create":
+    case 'create':
       {
         const event = parsedMessage as CreateTopicEvent;
         if (topics.every((topic) => topic.id !== event.id)) {
@@ -106,7 +94,7 @@ function updateTopicFromFrame(
         }
       }
       break;
-    case "update":
+    case 'update':
       {
         const event = parsedMessage as UpdateTopicEvent;
         topics.forEach((topic, index) => {
@@ -119,7 +107,7 @@ function updateTopicFromFrame(
         });
       }
       break;
-    case "destroy":
+    case 'destroy':
       {
         const event = parsedMessage as DestroyTopicEvent;
         topics.forEach((topic, index) => {
@@ -143,7 +131,7 @@ export function updateToTime(args: {
   frames: readonly MessageEvent<unknown>[] | undefined;
   nodeEventsTopic: string;
   topicEventsTopic: string;
-}): { nodes: Node[]; topics: Topic[] } {
+}): {nodes: Node[]; topics: Topic[]} {
   const timeObject = getTimeFromNumber(args.time);
   const filteredFrames = getFramesBeforeTime(args.frames, timeObject);
   return processNewFrames({
@@ -158,16 +146,11 @@ export function updateToTime(args: {
 function getTimeFromNumber(num: number): Time {
   const seconds = Math.floor(num);
   const nanoseconds = Math.floor((num - seconds) * 1_000_000_000);
-  return { sec: seconds, nsec: nanoseconds } as Time;
+  return {sec: seconds, nsec: nanoseconds} as Time;
 }
 
-function getFramesBeforeTime(
-  frames: readonly MessageEvent<unknown>[] | undefined,
-  time: Time,
-) {
-  const messages =
-    frames?.filter((message) => compareTime(message.receiveTime, time) !== 1) ??
-      [];
+function getFramesBeforeTime(frames: readonly MessageEvent<unknown>[] | undefined, time: Time) {
+  const messages = frames?.filter((message) => compareTime(message.receiveTime, time) !== 1) ?? [];
   return messages as MessageEvent<unknown>[];
 }
 

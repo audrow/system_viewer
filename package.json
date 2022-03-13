@@ -8,12 +8,16 @@
   "main": "./dist/extension.js",
   "scripts": {
     "build": "fox build",
+    "prepare": "husky install",
     "foxglove:prepublish": "fox build --mode production",
-    "lint:ci": "eslint --report-unused-disable-directives .",
-    "lint": "eslint --report-unused-disable-directives --fix .",
     "local-install": "fox install",
+    "lint": "eslint src --ignore-path .gitignore --max-warnings 0",
+    "prettier": "prettier --ignore-path .gitignore \"**/*.(js|jsx|json|yml|yaml|css|ts|tsx|md|mdx)\"",
+    "format": "npm run prettier -- --write",
+    "check-format": "npm run prettier -- --list-different",
     "package": "fox package",
-    "pretest": "fox pretest"
+    "pretest": "fox pretest",
+    "validate": "npm-run-all check-format lint build"
   },
   "devDependencies": {
     "@foxglove/eslint-plugin": "0.17.1",
@@ -23,13 +27,17 @@
     "@types/react-dom": "17.0.11",
     "@typescript-eslint/eslint-plugin": "5.3.1",
     "@typescript-eslint/parser": "5.3.1",
-    "eslint": "8.2.0",
+    "eslint": "^8.2.0",
     "eslint-config-prettier": "8.3.0",
     "eslint-plugin-import": "2.25.3",
     "eslint-plugin-prettier": "4.0.0",
     "eslint-plugin-react": "7.27.0",
     "eslint-plugin-react-hooks": "4.3.0",
+    "husky": "^7.0.4",
+    "lint-staged": "^12.3.5",
+    "npm-run-all": "^4.1.5",
     "prettier": "2.4.1",
+    "prettier-plugin-organize-imports": "^2.3.4",
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "typescript": "4.4.4"
