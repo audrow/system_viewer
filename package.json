@@ -1,9 +1,9 @@
 {
   "name": "system-viewer",
   "displayName": "System Viewer",
-  "description": "Introspect the ROS network",
+  "description": "Introspect the ROS network.",
   "publisher": "Open Robotics",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "license": "MIT",
   "main": "./dist/extension.js",
   "scripts": {
