@@ -1,4 +1,4 @@
-import {Node, PubSub} from './Entities'
+import {Node, PubSub} from './RosEntities'
 
 export type NodeEvent =
   | CreateNode
@@ -7,8 +7,6 @@ export type NodeEvent =
   | DestroyNode
   | DestroyPublisher
   | DestroySubscription
-
-export default NodeEvent
 
 export type CreateNode = {
   name: 'create_node'
