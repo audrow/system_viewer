@@ -1,5 +1,9 @@
 # DIRECTION
 
+## 2022-03-13
+
+Alright, now that I have a decent
+
 ## 2021-11-12
 
 ### Results

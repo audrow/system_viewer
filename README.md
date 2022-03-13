@@ -9,8 +9,8 @@ To run try this extension in Foxglove Studio:
 1. Go to the folder where this repository is cloned and run the following
    commands:
    ```
-   yarn install
-   yarn local-install
+   npm ci
+   npm run local-install
    ```
 
 You should then have access to this project as an extension in Foxglove Studio.
