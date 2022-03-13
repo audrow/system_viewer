@@ -11,16 +11,16 @@ rosbag2_bagfile_information:
         name: system_viewer/events/node
         type: std_msgs/msg/String
         serialization_format: cdr
-        offered_qos_profiles: ""
+        offered_qos_profiles: ''
       message_count: 6
     - topic_metadata:
         name: system_viewer/events/topic
         type: std_msgs/msg/String
         serialization_format: cdr
-        offered_qos_profiles: ""
+        offered_qos_profiles: ''
       message_count: 15
-  compression_format: ""
-  compression_mode: ""
+  compression_format: ''
+  compression_mode: ''
   relative_file_paths:
     - spoof_system_viewer_v2_0.db3
   files:
