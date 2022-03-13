@@ -2,7 +2,10 @@
 
 ## 2022-03-13
 
-Alright, now that I have a decent
+Today, I have added linting and formatting, fixed the package name and description, and added a newer dataset in the new format.
+The next steps are to adjust the program to use the new data structures.
+
+It seems that there are several events and that they can be added in any order. It also is the case that the namespace of the node should be considered in creating the mapped topic. The data structure will have nodes, which have a namespace and id; it will have topics, which have a topic and node id.
 
 ## 2021-11-12
 

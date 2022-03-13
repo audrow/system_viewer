@@ -9,7 +9,7 @@ proseWrap: 'preserve'
 quoteProps: 'as-needed'
 printWidth: 100
 requirePragma: false
-semi: true
+semi: false
 singleQuote: true
 trailingComma: 'all'
 tabWidth: 2

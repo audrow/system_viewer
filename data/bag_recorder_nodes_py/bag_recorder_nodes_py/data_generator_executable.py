@@ -9,28 +9,23 @@ import rosbag2_py
 
 topic_events = [
     {
-        'topic': '/chatter',
-        'node': '0-bluesalley-488675-0x558061e96010',
+        'id': '0-bluesalley-488675-0x558061ed2fb0',
         'data': { 'bw': 100 },
     },
     {
-        'topic': '/chatter',
-        'node': '0-bluesalley-488675-0x558061e96010',
+        'id': '0-bluesalley-488675-0x558061ed2fb0',
         'data': { 'bw': 120 },
     },
     {
-        'topic': '/chatter',
-        'node': '0-bluesalley-488675-0x558061e96010',
+        'id': '0-bluesalley-488675-0x558061ed2fb0',
         'data': { 'bw': 105 },
     },
     {
-        'topic': '/chatter',
-        'node': '0-bluesalley-488675-0x558061e96010',
+        'id': '0-bluesalley-488675-0x558061ed2fb0',
         'data': { 'delay': 0.1 },
     },
     {
-        'topic': '/chatter',
-        'node': '0-bluesalley-488675-0x558061e96010',
+        'id': '0-bluesalley-488675-0x558061ed2fb0',
         'data': { 'delay': 0.2 },
     },
 ]

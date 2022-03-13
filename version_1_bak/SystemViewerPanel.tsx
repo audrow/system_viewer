@@ -1,12 +1,14 @@
 import {PanelExtensionContext, RenderState} from '@foxglove/studio'
 import {useEffect, useLayoutEffect, useState} from 'react'
 import ReactDOM from 'react-dom'
-// import {processNewFrames, updateToTime} from './frame-utils'
+import {processNewFrames, updateToTime} from './frame-utils'
+import type Node from './types/Node'
+import type Topic from './types/Topic'
 
 function SystemViewerPanel({context}: {context: PanelExtensionContext}): JSX.Element {
   const [renderDone, setRenderDone] = useState<(() => void) | undefined>()
-  // const [nodes, setNodes] = useState<Node[]>([])
-  // const [topics, setTopics] = useState<Topic[]>([])
+  const [nodes, setNodes] = useState<Node[]>([])
+  const [topics, setTopics] = useState<Topic[]>([])
 
   const nodeEventsTopic = 'system_viewer/node_events'
   const statisticsTopic = 'system_viewer/statistics'
@@ -16,25 +18,25 @@ function SystemViewerPanel({context}: {context: PanelExtensionContext}): JSX.Ele
       setRenderDone(done)
 
       if (renderState.previewTime && context.seekPlayback) {
-        // context.seekPlayback(renderState.previewTime)
-        // const {nodes: newNodes, topics: newTopics} = updateToTime({
-        //   time: renderState.previewTime,
-        //   frames: renderState.allFrames,
-        //   nodeEventsTopic,
-        //   topicEventsTopic: statisticsTopic,
-        // })
-        // setNodes(newNodes)
-        // setTopics(newTopics)
+        context.seekPlayback(renderState.previewTime)
+        const {nodes: newNodes, topics: newTopics} = updateToTime({
+          time: renderState.previewTime,
+          frames: renderState.allFrames,
+          nodeEventsTopic,
+          topicEventsTopic: statisticsTopic,
+        })
+        setNodes(newNodes)
+        setTopics(newTopics)
       } else if (renderState.currentFrame && renderState.currentFrame.length > 0) {
-        // const {nodes: newNodes, topics: newTopics} = processNewFrames({
-        //   frames: renderState.currentFrame,
-        //   nodes,
-        //   topics,
-        //   nodeEventsTopic,
-        //   topicEventsTopic: statisticsTopic,
-        // })
-        // setNodes(newNodes)
-        // setTopics(newTopics)
+        const {nodes: newNodes, topics: newTopics} = processNewFrames({
+          frames: renderState.currentFrame,
+          nodes,
+          topics,
+          nodeEventsTopic,
+          topicEventsTopic: statisticsTopic,
+        })
+        setNodes(newNodes)
+        setTopics(newTopics)
       }
     }
 
@@ -51,7 +53,7 @@ function SystemViewerPanel({context}: {context: PanelExtensionContext}): JSX.Ele
   return (
     <>
       <h1>System Viewer</h1>
-      {/* <h2>Nodes</h2>
+      <h2>Nodes</h2>
       <ul>
         {nodes.map((node) => (
           <li>{node.name}</li>
@@ -64,7 +66,7 @@ function SystemViewerPanel({context}: {context: PanelExtensionContext}): JSX.Ele
             {topic.topic} - data: {JSON.stringify(topic.data) || '<none>'}
           </li>
         ))}
-      </ul> */}
+      </ul>
     </>
   )
 }
