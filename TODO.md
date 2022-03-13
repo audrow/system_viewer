@@ -8,3 +8,4 @@
 - [ ] Add an icon and description like in the State Transition Plugin
 - [ ] Capitalize the panel name: "System Viewer" instead of "system-viewer"
 - [x] Add the Python Code for generating the data
+- [ ] Use schema validation (Ajv) for messages received
