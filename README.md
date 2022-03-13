@@ -9,8 +9,9 @@ To run try this extension in Foxglove Studio:
 1. Go to the folder where this repository is cloned and run the following
    commands:
    ```
-   npm ci
-   npm run local-install
+   npm ci # install
+   npm run prepare # setup git hooks
+   npm run local-install # install the extension for foxglove
    ```
 
 You should then have access to this project as an extension in Foxglove Studio.
