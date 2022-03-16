@@ -12,8 +12,16 @@ export type PubSub = {
   }
 } & Entity
 
+export type Topic = {
+  name: string
+  publishers: Id[]
+  subscriptions: Id[]
+}
+
+type Id = string
+
 type Entity = {
-  id: string
+  id: Id
   domain: number
   hostname: string
   pid: number
