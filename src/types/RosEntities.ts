@@ -1,26 +1,27 @@
-export type Node = {
+export type Node = RosEntity & {
   name: string
   namespace: string
-} & Entity
+}
 
-export type PubSub = {
+export type PubSub = RosEntity & {
   qos: {
     history: number
     depth: number
     reliability: number
     durability: number
   }
-} & Entity
+}
 
 export type Topic = {
-  name: string
+  topic: string
+  namespace: string
   publishers: Id[]
   subscriptions: Id[]
 }
 
 type Id = string
 
-type Entity = {
+type RosEntity = {
   id: Id
   domain: number
   hostname: string
