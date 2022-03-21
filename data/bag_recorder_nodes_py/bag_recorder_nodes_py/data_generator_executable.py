@@ -110,24 +110,24 @@ node_start_events = [
 ]
 node_end_events = [
     {
-        'event': 'destroy_publisher:',
+        'event': 'destroy_publisher',
         'id': '0-bluesalley-488675-0x558061e95640',
     },
 
     {
-        'event': 'destroy_publisher:',
+        'event': 'destroy_publisher',
         'id': '0-bluesalley-488675-0x558061ed2fb0',
     },
     {
-        'event': 'destroy_subscription:',
+        'event': 'destroy_subscription',
         'id': '0-bluesalley-488675-0x558061ed2ff0',
     },
     {
-        'event': 'destroy_publisher:',
+        'event': 'destroy_publisher',
         'id': '0-bluesalley-488675-0x558061ed0130',
     },
     {
-        'event': 'destroy_node:',
+        'event': 'destroy_node',
         'id': '0-bluesalley-488675-0x558061e96010',
     },
 ]
