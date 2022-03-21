@@ -61,15 +61,6 @@ function SystemViewerPanel({context}: {context: PanelExtensionContext}): JSX.Ele
             console.error('Unknown topic: ' + frame.topic)
           }
         })
-        // const {nodes: newNodes, topics: newTopics} = processNewFrames({
-        //   frames: renderState.currentFrame,
-        //   nodes,
-        //   topics,
-        //   nodeEventsTopic,
-        //   topicEventsTopic: statisticsTopic,
-        // })
-        // setNodes(newNodes)
-        // setTopics(newTopics)
       }
     }
 
@@ -89,7 +80,22 @@ function SystemViewerPanel({context}: {context: PanelExtensionContext}): JSX.Ele
       <h2>Nodes</h2>
       <ul>
         {nodes.map((node) => (
-          <li key={node.name}>{node.name}</li>
+          <li key={node.name}>
+            {node.name}
+            <br />
+            Publishers:
+            <ul>
+              {node.publisherIds.map((id) => (
+                <li key={id}>{id}</li>
+              ))}
+            </ul>
+            Subscribers:
+            <ul>
+              {node.subscriptionIds.map((id) => (
+                <li key={id}>{id}</li>
+              ))}
+            </ul>
+          </li>
         ))}
       </ul>
       <h2>Publishers</h2>
@@ -119,6 +125,8 @@ function processNodeEventMessage(
   subscriptions: PubSub[]
 } {
   const event = msg.event
+
+  // Create and destroy nodes, publishers, and subscriptions
   if (event === 'create_node') {
     const createNodeMsg = msg as CreateNode
     console.log(`Creating node ${createNodeMsg.name}`)
@@ -153,6 +161,13 @@ function processNodeEventMessage(
   } else {
     throw new Error(`Unknown message event: ${event}`)
   }
+
+  // connect publishers and subscriptions to nodes
+  nodes.forEach((node) => {
+    const id = node.id
+    node.publisherIds = publishers.filter((pub) => pub.node === id).map((pub) => pub.id)
+    node.subscriptionIds = subscriptions.filter((sub) => sub.node === id).map((sub) => sub.id)
+  })
   return {nodes: [...nodes], publishers: [...publishers], subscriptions: [...subscriptions]} // to trigger react to update
 }
 

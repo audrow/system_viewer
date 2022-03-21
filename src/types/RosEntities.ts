@@ -1,9 +1,12 @@
 export type Node = RosEntity & {
   name: string
   namespace: string
+  publisherIds: Id[]
+  subscriptionIds: Id[]
 }
 
 export type PubSub = RosEntity & {
+  node: string
   qos: {
     history: number
     depth: number
@@ -15,8 +18,8 @@ export type PubSub = RosEntity & {
 export type Topic = {
   topic: string
   namespace: string
-  publishers: Id[]
-  subscriptions: Id[]
+  publisherIds: Id[]
+  subscriptionIds: Id[]
 }
 
 type Id = string
