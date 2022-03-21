@@ -53,14 +53,15 @@ function SystemViewerPanel({context}: {context: PanelExtensionContext}): JSX.Ele
       setRenderDone(done)
 
       if (renderState.previewTime && context.seekPlayback) {
+        context.seekPlayback(renderState.previewTime)
+        const timeObject = getTimeFromNumber(renderState.previewTime)
+        const frames = getFramesBeforeTime(renderState.allFrames, timeObject)
+
         // reset ros network
         setNodes([])
         setPublishers([])
         setSubscriptions([])
 
-        context.seekPlayback(renderState.previewTime)
-        const timeObject = getTimeFromNumber(renderState.previewTime)
-        const frames = getFramesBeforeTime(renderState.allFrames, timeObject)
         processFrames(frames)
       } else if (renderState.currentFrame && renderState.currentFrame.length > 0) {
         const currentFrames = renderState.currentFrame
@@ -171,7 +172,11 @@ function processNodeEventMessage(
     node.publisherIds = publishers.filter((pub) => pub.node === id).map((pub) => pub.id)
     node.subscriptionIds = subscriptions.filter((sub) => sub.node === id).map((sub) => sub.id)
   })
-  return {nodes: [...nodes], publishers: [...publishers], subscriptions: [...subscriptions]} // to trigger react to update
+  return {
+    nodes: [...nodes],
+    publishers: [...publishers],
+    subscriptions: [...subscriptions],
+  } // to trigger react to update
 }
 
 function handleStatisticsMessage(msg: Statistics) {
