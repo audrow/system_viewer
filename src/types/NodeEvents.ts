@@ -9,7 +9,7 @@ export type NodeEvent =
   | DestroySubscription
 
 export type CreateNode = {
-  name: 'create_node'
+  event: 'create_node'
 } & Node
 
 export type CreatePublisher = {
