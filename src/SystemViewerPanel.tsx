@@ -1,4 +1,4 @@
-import type {MessageEvent} from '@foxglove/studio'
+import type {MessageEvent, Time} from '@foxglove/studio'
 import {PanelExtensionContext, RenderState} from '@foxglove/studio'
 import {useEffect, useLayoutEffect, useState} from 'react'
 import ReactDOM from 'react-dom'
@@ -25,42 +25,46 @@ function SystemViewerPanel({context}: {context: PanelExtensionContext}): JSX.Ele
   const nodeEventsTopic = 'system_viewer/node_events'
   const statisticsTopic = 'system_viewer/statistics'
 
+  function processFrames(frames: readonly MessageEvent<unknown>[]) {
+    frames.forEach((frame) => {
+      if (frame.topic === nodeEventsTopic) {
+        const messageEvent = frame as MessageEvent<RosStdMsgString>
+        const msg = JSON.parse(messageEvent.message.data)
+        const {
+          nodes: newNodes,
+          publishers: newPublishers,
+          subscriptions: newSubscriptions,
+        } = processNodeEventMessage(msg, nodes, publishers, subscriptions)
+        setNodes(newNodes)
+        setPublishers(newPublishers)
+        setSubscriptions(newSubscriptions)
+      } else if (frame.topic === statisticsTopic) {
+        const messageEvent = frame as MessageEvent<RosStdMsgString>
+        const msg = JSON.parse(messageEvent.message.data)
+        handleStatisticsMessage(msg)
+      } else {
+        console.error('Unknown topic: ' + frame.topic)
+      }
+    })
+  }
+
   useLayoutEffect(() => {
     context.onRender = (renderState: RenderState, done) => {
       setRenderDone(done)
 
       if (renderState.previewTime && context.seekPlayback) {
+        // reset ros network
+        setNodes([])
+        setPublishers([])
+        setSubscriptions([])
+
         context.seekPlayback(renderState.previewTime)
-        // const {nodes: newNodes, topics: newTopics} = updateToTime({
-        //   time: renderState.previewTime,
-        //   frames: renderState.allFrames,
-        //   nodeEventsTopic,
-        //   topicEventsTopic: statisticsTopic,
-        // })
-        // setNodes(newNodes)
+        const timeObject = getTimeFromNumber(renderState.previewTime)
+        const frames = getFramesBeforeTime(renderState.allFrames, timeObject)
+        processFrames(frames)
       } else if (renderState.currentFrame && renderState.currentFrame.length > 0) {
-        console.log(renderState.currentFrame)
         const currentFrames = renderState.currentFrame
-        currentFrames.forEach((frame) => {
-          if (frame.topic === nodeEventsTopic) {
-            const messageEvent = frame as MessageEvent<RosStdMsgString>
-            const msg = JSON.parse(messageEvent.message.data)
-            const {
-              nodes: newNodes,
-              publishers: newPublishers,
-              subscriptions: newSubscriptions,
-            } = processNodeEventMessage(msg, nodes, publishers, subscriptions)
-            setNodes(newNodes)
-            setPublishers(newPublishers)
-            setSubscriptions(newSubscriptions)
-          } else if (frame.topic === statisticsTopic) {
-            const messageEvent = frame as MessageEvent<RosStdMsgString>
-            const msg = JSON.parse(messageEvent.message.data)
-            handleStatisticsMessage(msg)
-          } else {
-            console.error('Unknown topic: ' + frame.topic)
-          }
-        })
+        processFrames(currentFrames)
       }
     }
 
@@ -129,7 +133,6 @@ function processNodeEventMessage(
   // Create and destroy nodes, publishers, and subscriptions
   if (event === 'create_node') {
     const createNodeMsg = msg as CreateNode
-    console.log(`Creating node ${createNodeMsg.name}`)
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const {event, ...newNode} = createNodeMsg
     if (nodes.every((node) => node.id !== newNode.id)) {
@@ -172,7 +175,34 @@ function processNodeEventMessage(
 }
 
 function handleStatisticsMessage(msg: Statistics) {
-  console.log('message on statistics topic: ', msg)
+  console.info('message on statistics topic: ', msg)
+}
+
+function getTimeFromNumber(num: number): Time {
+  const seconds = Math.floor(num)
+  const nanoseconds = Math.floor((num - seconds) * 1_000_000_000)
+  return {sec: seconds, nsec: nanoseconds} as Time
+}
+
+function getFramesBeforeTime(frames: readonly MessageEvent<unknown>[] | undefined, time: Time) {
+  const messages = frames?.filter((message) => compareTime(message.receiveTime, time) !== 1) ?? []
+  return messages as MessageEvent<unknown>[]
+}
+
+function compareTime(time1: Time, time2: Time) {
+  if (time1.sec < time2.sec) {
+    return -1
+  } else if (time1.sec > time2.sec) {
+    return 1
+  } else {
+    if (time1.nsec < time2.nsec) {
+      return -1
+    } else if (time1.nsec > time2.nsec) {
+      return 1
+    } else {
+      return 0
+    }
+  }
 }
 
 export function initSystemViewerPanel(context: PanelExtensionContext) {
