@@ -9,7 +9,7 @@
   "scripts": {
     "build": "fox build",
     "prepare": "husky install",
-    "foxglove:prepublish": "fox build --mode production",
+    "foxglove:prepublish": "fox build --mode development",
     "local-install": "fox install",
     "lint": "eslint src --ignore-path .gitignore --max-warnings 0",
     "prettier": "prettier --ignore-path .gitignore \"**/*.(js|jsx|json|yml|yaml|css|ts|tsx|md|mdx)\"",
