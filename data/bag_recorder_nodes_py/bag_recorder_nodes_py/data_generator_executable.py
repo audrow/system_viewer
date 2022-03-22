@@ -130,6 +130,10 @@ node_end_events = [
         'event': 'destroy_node',
         'id': '0-bluesalley-488675-0x558061e96010',
     },
+    {
+        'event': 'destroy_node',
+        'id': '0-bluesalley-488675-0x558061e96010',
+    },
 ]
 
 
