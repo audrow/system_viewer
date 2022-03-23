@@ -25,25 +25,31 @@ function SystemViewerPanel({context}: {context: PanelExtensionContext}): JSX.Ele
   const nodeEventsTopic = 'system_viewer/node_events'
   const statisticsTopic = 'system_viewer/statistics'
 
-  function processFrames(frames: readonly MessageEvent<unknown>[]) {
+  function processFramesForNodeEvents(
+    frames: readonly MessageEvent<unknown>[],
+    nodes: Node[],
+    publishers: PubSub[],
+    subscriptions: PubSub[],
+  ) {
     frames.forEach((frame) => {
       if (frame.topic === nodeEventsTopic) {
-        const messageEvent = frame as MessageEvent<RosStdMsgString>
-        const msg = JSON.parse(messageEvent.message.data)
-        const {
-          nodes: newNodes,
-          publishers: newPublishers,
-          subscriptions: newSubscriptions,
-        } = processNodeEventMessage(msg, nodes, publishers, subscriptions)
-        setNodes(newNodes)
-        setPublishers(newPublishers)
-        setSubscriptions(newSubscriptions)
-      } else if (frame.topic === statisticsTopic) {
+        const out = processNodeEventMessageEvent(frame, nodes, publishers, subscriptions)
+        nodes = out.nodes
+        publishers = out.publishers
+        subscriptions = out.subscriptions
+      }
+    })
+    setNodes(nodes)
+    setPublishers(publishers)
+    setSubscriptions(subscriptions)
+  }
+
+  function processFramesForStatistics(frames: readonly MessageEvent<unknown>[]) {
+    frames.forEach((frame) => {
+      if (frame.topic === statisticsTopic) {
         const messageEvent = frame as MessageEvent<RosStdMsgString>
         const msg = JSON.parse(messageEvent.message.data)
         handleStatisticsMessage(msg)
-      } else {
-        console.error('Unknown topic: ' + frame.topic)
       }
     })
   }
@@ -56,16 +62,12 @@ function SystemViewerPanel({context}: {context: PanelExtensionContext}): JSX.Ele
         context.seekPlayback(renderState.previewTime)
         const timeObject = getTimeFromNumber(renderState.previewTime)
         const frames = getFramesBeforeTime(renderState.allFrames, timeObject)
-
-        // reset ros network
-        setNodes([])
-        setPublishers([])
-        setSubscriptions([])
-
-        processFrames(frames)
+        processFramesForNodeEvents(frames, [], [], [])
+        processFramesForStatistics(frames)
       } else if (renderState.currentFrame && renderState.currentFrame.length > 0) {
         const currentFrames = renderState.currentFrame
-        processFrames(currentFrames)
+        processFramesForNodeEvents(currentFrames, nodes, publishers, subscriptions)
+        processFramesForStatistics(currentFrames)
       }
     }
 
@@ -119,6 +121,17 @@ function SystemViewerPanel({context}: {context: PanelExtensionContext}): JSX.Ele
   )
 }
 
+function processNodeEventMessageEvent(
+  messageEvent: MessageEvent<unknown>,
+  nodes: Node[],
+  publishers: PubSub[],
+  subscriptions: PubSub[],
+) {
+  const rosMsgStringEvent = messageEvent as MessageEvent<RosStdMsgString>
+  const msg = JSON.parse(rosMsgStringEvent.message.data)
+  return processNodeEventMessage(msg, nodes, publishers, subscriptions)
+}
+
 function processNodeEventMessage(
   msg: NodeEvent,
   nodes: Node[],
@@ -155,13 +168,25 @@ function processNodeEventMessage(
     }
   } else if (event === 'destroy_node') {
     const destroyNodeMsg = msg as DestroyNode
-    nodes = nodes.filter((node) => node.id !== destroyNodeMsg.id)
+    nodes.forEach((node, index) => {
+      if (node.id === destroyNodeMsg.id) {
+        nodes.splice(index, 1)
+      }
+    })
   } else if (event === 'destroy_publisher') {
     const destroyPublisherMsg = msg as DestroyPublisher
-    publishers = publishers.filter((pub) => pub.id !== destroyPublisherMsg.id)
+    publishers.forEach((publisher, index) => {
+      if (publisher.id === destroyPublisherMsg.id) {
+        publishers.splice(index, 1)
+      }
+    })
   } else if (event === 'destroy_subscription') {
     const destroySubscriptionMsg = msg as DestroySubscription
-    subscriptions = subscriptions.filter((sub) => sub.id !== destroySubscriptionMsg.id)
+    subscriptions.forEach((subscription, index) => {
+      if (subscription.id === destroySubscriptionMsg.id) {
+        subscriptions.splice(index, 1)
+      }
+    })
   } else {
     throw new Error(`Unknown message event: ${event}`)
   }
