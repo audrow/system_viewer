@@ -7,6 +7,7 @@ export type Node = RosEntity & {
 
 export type PubSub = RosEntity & {
   node: string
+  topic: string
   qos: {
     history: number
     depth: number
