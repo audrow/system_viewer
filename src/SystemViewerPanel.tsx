@@ -2,6 +2,7 @@ import type {MessageEvent, Time} from '@foxglove/studio'
 import {PanelExtensionContext, RenderState} from '@foxglove/studio'
 import {useEffect, useLayoutEffect, useState} from 'react'
 import ReactDOM from 'react-dom'
+import {GraphNode} from './types/GraphElements'
 import type {
   CreateNode,
   CreatePublisher,
@@ -11,7 +12,6 @@ import type {
   DestroySubscription,
   NodeEvent,
 } from './types/NodeEvents'
-// import {processNewFrames, updateToTime} from './frame-utils'
 import {Node, PubSub} from './types/RosEntities'
 import type RosStdMsgString from './types/RosStdMsgsString'
 import type Statistics from './types/Statistics'
@@ -117,8 +117,42 @@ function SystemViewerPanel({context}: {context: PanelExtensionContext}): JSX.Ele
           <li key={sub.id}>{sub.id}</li>
         ))}
       </ul>
+      <h2>Output</h2>
+      <code>{JSON.stringify(nodes)}</code>
     </>
   )
+}
+
+export function toGraph(nodes: Node[], publishers: PubSub[], subscriptions: PubSub[]) {
+  // make nodes
+  const graphNodes: GraphNode[] = nodes.map((node) => ({
+    id: node.id,
+    type: 'rosNode',
+    isHidden: false,
+    data: {
+      namespace: node.namespace,
+      label: node.name,
+    },
+  }))
+  console.log(graphNodes)
+  // make topics
+  nodes.map((node) => {
+    const pubs = node.publisherIds
+      .map((id) => publishers.find((pub) => pub.id === id))
+      .filter((pub) => !!pub) as PubSub[]
+    const subs = node.subscriptionIds
+      .map((id) => subscriptions.find((sub) => sub.id === id))
+      .filter((sub) => !!sub) as PubSub[]
+    const pubTopicsSet = new Set<string>()
+    const subTopicsSet = new Set<string>()
+    pubs.forEach((pub) => {
+      pubTopicsSet.add(pub.topic)
+    })
+    subs.forEach((sub) => {
+      subTopicsSet.add(sub.topic)
+    })
+  })
+  // make edges between topics
 }
 
 function processNodeEventMessageEvent(

@@ -1,5 +1,33 @@
 # DIRECTION
 
+## 2022-03-25: Figuring out how to get topic data
+
+Now that I have the desired input data structures being populated with messages that come in, I have to figure out how to use this data to get the desired objects for making the graph.
+Making the graph seems tricky.
+There are likely two data structures that would be good to have:
+
+- Nodes
+- Topics
+
+Nodes will contain the nodes name, namespace, and its publishers and subscriber Ids.
+Topics on the other hand will be used to link the publishers and subscribers. They should probably have the following information:
+
+- Publishing node Ids
+- Publisher Ids
+- Subscriber node Ids
+- Subscriber Ids
+- Topic
+- Publisher and subscriber statistics
+
+For this reason, I am thinking that I make topics look the following way:
+
+- Topic name
+- List of publishers
+  - Node Id
+  - Publisher Id
+  - Statistics
+- List of subscribers
+
 ## 2022-03-15: Data formats
 
 So let me figure out what I am making now:
