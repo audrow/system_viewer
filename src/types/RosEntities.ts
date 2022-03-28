@@ -23,7 +23,7 @@ export type Topic = {
   subscriptionIds: Id[]
 }
 
-type Id = string
+export type Id = string
 
 type RosEntity = {
   id: Id

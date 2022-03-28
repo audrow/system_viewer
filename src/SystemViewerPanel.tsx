@@ -12,9 +12,10 @@ import type {
   DestroySubscription,
   NodeEvent,
 } from './types/NodeEvents'
-import {Node, PubSub} from './types/RosEntities'
+import type {Node, PubSub} from './types/RosEntities'
 import type RosStdMsgString from './types/RosStdMsgsString'
 import type Statistics from './types/Statistics'
+import type {TopicHelper, TopicHelperMap} from './types/TopicHelper'
 
 function SystemViewerPanel({context}: {context: PanelExtensionContext}): JSX.Element {
   const [renderDone, setRenderDone] = useState<(() => void) | undefined>()
@@ -118,7 +119,7 @@ function SystemViewerPanel({context}: {context: PanelExtensionContext}): JSX.Ele
         ))}
       </ul>
       <h2>Output</h2>
-      <code>{JSON.stringify(nodes)}</code>
+      <code>{JSON.stringify(toGraph(nodes, publishers, subscriptions))}</code>
     </>
   )
 }
@@ -136,23 +137,62 @@ export function toGraph(nodes: Node[], publishers: PubSub[], subscriptions: PubS
   }))
   console.log(graphNodes)
   // make topics
+  const topicHelperMap: TopicHelperMap = {}
   nodes.map((node) => {
-    const pubs = node.publisherIds
-      .map((id) => publishers.find((pub) => pub.id === id))
-      .filter((pub) => !!pub) as PubSub[]
-    const subs = node.subscriptionIds
-      .map((id) => subscriptions.find((sub) => sub.id === id))
-      .filter((sub) => !!sub) as PubSub[]
-    const pubTopicsSet = new Set<string>()
-    const subTopicsSet = new Set<string>()
-    pubs.forEach((pub) => {
-      pubTopicsSet.add(pub.topic)
-    })
-    subs.forEach((sub) => {
-      subTopicsSet.add(sub.topic)
-    })
+    updateTopicHelperMap(topicHelperMap, node, publishers, true)
+    updateTopicHelperMap(topicHelperMap, node, subscriptions, false)
   })
   // make edges between topics
+  console.log('topic helper map: ', topicHelperMap)
+  return topicHelperMap
+}
+
+function updateTopicHelperMap(
+  topicHelperMap: TopicHelperMap,
+  node: Node,
+  pubSubs: PubSub[],
+  isPub: boolean,
+) {
+  const pubOrSub = isPub ? 'publishers' : 'subscriptions'
+  const nodePubSubs = node[isPub ? 'publisherIds' : 'subscriptionIds']
+    .map((id) => pubSubs.find((pubSub) => pubSub.id === id))
+    .filter((pubSub) => !!pubSub) as PubSub[]
+  nodePubSubs.forEach((pubSub) => {
+    const namespaceAndTopic =
+      node.namespace === '' ? pubSub.topic : `${node.namespace}/${pubSub.topic}`
+    if (topicHelperMap[namespaceAndTopic]) {
+      if (!topicHelperMap[namespaceAndTopic]![pubOrSub][pubSub.id]) {
+        topicHelperMap[namespaceAndTopic]![pubOrSub][pubSub.id] = {
+          nodeId: node.id,
+          qos: pubSub.qos,
+        }
+      } else {
+        console.warn(`Duplicate pub/sub for ${namespaceAndTopic}`)
+      }
+    } else {
+      let publishers: TopicHelper['publishers'] = {}
+      let subscriptions: TopicHelper['subscriptions'] = {}
+      if (isPub) {
+        publishers[pubSub.id] = {
+          nodeId: node.id,
+          qos: pubSub.qos,
+        }
+        subscriptions = {}
+      } else {
+        publishers = {}
+        subscriptions[pubSub.id] = {
+          nodeId: node.id,
+          qos: pubSub.qos,
+        }
+      }
+      topicHelperMap[namespaceAndTopic] = {
+        topic: pubSub.topic,
+        namespace: node.namespace,
+        publishers,
+        subscriptions,
+      }
+    }
+  })
 }
 
 function processNodeEventMessageEvent(
