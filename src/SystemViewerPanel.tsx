@@ -4,10 +4,10 @@ import {useEffect, useLayoutEffect, useState} from 'react'
 import ReactDOM from 'react-dom'
 import processNodeEventMessageEvent from './process-node-message-event'
 import toGraph from './to-graph'
-import type {Node, PubSub} from './types/RosEntities'
-import type RosStdMsgString from './types/RosStdMsgsString'
-import type Statistics from './types/Statistics'
 import {getFramesBeforeTime, getTimeFromNumber} from './utils/time'
+import type {Node, PubSub} from './__types__/RosEntities'
+import type RosStdMsgString from './__types__/RosStdMsgsString'
+import type Statistics from './__types__/Statistics'
 
 function SystemViewerPanel({context}: {context: PanelExtensionContext}): JSX.Element {
   const [renderDone, setRenderDone] = useState<(() => void) | undefined>()

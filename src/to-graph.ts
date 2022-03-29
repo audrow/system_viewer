@@ -1,6 +1,6 @@
-import {GraphEdge, GraphNode, GraphTopic} from './types/GraphElements'
-import type {Node, PubSub} from './types/RosEntities'
-import type {TopicHelper, TopicHelperMap} from './types/TopicHelper'
+import {GraphEdge, GraphNode, GraphTopic} from './__types__/GraphElements'
+import type {Node, PubSub} from './__types__/RosEntities'
+import type {TopicHelper, TopicHelperMap} from './__types__/TopicHelper'
 
 export default function toGraph(nodes: Node[], publishers: PubSub[], subscriptions: PubSub[]) {
   // make nodes

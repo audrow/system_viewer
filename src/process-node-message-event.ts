@@ -7,9 +7,9 @@ import type {
   DestroyPublisher,
   DestroySubscription,
   NodeEvent,
-} from './types/NodeEvents'
-import type {Node, PubSub} from './types/RosEntities'
-import type RosStdMsgString from './types/RosStdMsgsString'
+} from './__types__/NodeEvents'
+import type {Node, PubSub} from './__types__/RosEntities'
+import type RosStdMsgString from './__types__/RosStdMsgsString'
 
 export default function processNodeEventMessageEvent(
   messageEvent: MessageEvent<unknown>,
