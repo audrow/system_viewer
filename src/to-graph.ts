@@ -23,26 +23,35 @@ export default function toGraph(nodes: Node[], publishers: PubSub[], subscriptio
   const graphTopics: GraphTopic[] = []
   const graphEdges: GraphEdge[] = []
   Object.entries(topicHelperMap).forEach(([topic, helper]) => {
+    const topicId = `topic-${topic}`
     graphTopics.push({
-      id: topic,
+      id: topicId,
       type: 'rosTopic',
       data: {
         label: helper.topic,
         namespace: helper.namespace,
       },
     })
-    Object.entries({...helper.publishers, ...helper.subscriptions}).forEach(
-      ([id, pubSubHelper]) => {
-        graphEdges.push({
-          id: `${id}-${topic}`,
-          source: id,
-          target: topic,
-          type: 'default',
-          animated: true,
-          label: JSON.stringify(pubSubHelper.qos),
-        })
-      },
-    )
+    Object.entries(helper.publishers).forEach(([id, pubSubHelper]) => {
+      graphEdges.push({
+        id: `${id}-${topic}`,
+        source: id,
+        target: topicId,
+        type: 'default',
+        animated: true,
+        label: JSON.stringify(pubSubHelper.qos),
+      })
+    })
+    Object.entries(helper.subscriptions).forEach(([id, pubSubHelper]) => {
+      graphEdges.push({
+        id: `${id}-${topic}`,
+        source: topicId,
+        target: id,
+        type: 'default',
+        animated: true,
+        label: JSON.stringify(pubSubHelper.qos),
+      })
+    })
   })
 
   return {
