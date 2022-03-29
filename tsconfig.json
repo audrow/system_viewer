@@ -1,7 +1,7 @@
 {
   "extends": "@foxglove/fox/tsconfig/tsconfig.json",
 
-  "include": ["./src/**/*", "src/SystemViewerPanel.tsx"],
+  "include": ["./src/**/*"],
   "compilerOptions": {
     "rootDir": "./src",
     "outDir": "./dist",

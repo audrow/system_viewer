@@ -29,5 +29,5 @@ export type GraphEdge = GraphBase & {
 type GraphBase = {
   id: string
   type: string
-  isHidden: boolean
+  isHidden?: boolean
 }
