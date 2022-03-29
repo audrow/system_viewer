@@ -32,9 +32,10 @@ function SystemViewerPanel({context}: {context: PanelExtensionContext}): JSX.Ele
         subscriptions = out.subscriptions
       }
     })
-    setNodes(nodes)
-    setPublishers(publishers)
-    setSubscriptions(subscriptions)
+    // Copy to trigger a re-render in React
+    setNodes([...nodes])
+    setPublishers([...publishers])
+    setSubscriptions([...subscriptions])
   }
 
   function processFramesForStatistics(frames: readonly MessageEvent<unknown>[]) {

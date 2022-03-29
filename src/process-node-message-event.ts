@@ -88,8 +88,8 @@ function processNodeEventMessage(
     node.subscriptionIds = subscriptions.filter((sub) => sub.node === id).map((sub) => sub.id)
   })
   return {
-    nodes: [...nodes],
-    publishers: [...publishers],
-    subscriptions: [...subscriptions],
-  } // to trigger react to update
+    nodes,
+    publishers,
+    subscriptions,
+  }
 }
