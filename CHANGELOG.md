@@ -1,5 +1,5 @@
-# fox-test version history
+# CHANGELOG
 
 ## 0.0.0
 
-- Alpha testing
+- Initial setup
