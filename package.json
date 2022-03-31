@@ -20,7 +20,7 @@
     "validate": "npm-run-all check-format lint build"
   },
   "devDependencies": {
-    "@foxglove/eslint-plugin": "0.17.1",
+    "@foxglove/eslint-plugin": "0.19.0",
     "@foxglove/fox": "0.2.1",
     "@foxglove/studio": "1.5.1",
     "@types/react": "17.0.43",
