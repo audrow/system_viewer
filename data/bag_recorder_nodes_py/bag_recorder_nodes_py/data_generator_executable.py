@@ -139,8 +139,8 @@ node_end_events = [
 
 def main():
 
-    node_events_topic = 'system_viewer/node_events'
-    topic_events_topic = 'system_viewer/statistics'
+    node_events_topic = '/system_viewer/node_events'
+    topic_events_topic = '/system_viewer/statistics'
 
     writer = rosbag2_py.SequentialWriter()
 

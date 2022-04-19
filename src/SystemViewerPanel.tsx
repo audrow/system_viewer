@@ -15,8 +15,8 @@ function SystemViewerPanel({context}: {context: PanelExtensionContext}): JSX.Ele
   const [publishers, setPublishers] = useState<PubSub[]>([])
   const [subscriptions, setSubscriptions] = useState<PubSub[]>([])
 
-  const nodeEventsTopic = 'system_viewer/node_events'
-  const statisticsTopic = 'system_viewer/statistics'
+  const nodeEventsTopic = '/system_viewer/node_events'
+  const statisticsTopic = '/system_viewer/statistics'
 
   function processFramesForNodeEvents(
     frames: readonly MessageEvent<unknown>[],
