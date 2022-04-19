@@ -1,32 +1,25 @@
 rosbag2_bagfile_information:
-  version: 5
+  version: 4
   storage_identifier: sqlite3
+  relative_file_paths:
+    - spoof_system_viewer_v3_0.db3
   duration:
-    nanoseconds: 42000000000
+    nanoseconds: 45000000000
   starting_time:
-    nanoseconds_since_epoch: 1647787199083859860
-  message_count: 15
+    nanoseconds_since_epoch: 1650384765145125769
+  message_count: 16
   topics_with_message_count:
     - topic_metadata:
-        name: system_viewer/node_events
+        name: /system_viewer/node_events
         type: std_msgs/msg/String
         serialization_format: cdr
         offered_qos_profiles: ''
-      message_count: 10
+      message_count: 11
     - topic_metadata:
-        name: system_viewer/statistics
+        name: /system_viewer/statistics
         type: std_msgs/msg/String
         serialization_format: cdr
         offered_qos_profiles: ''
       message_count: 5
   compression_format: ''
   compression_mode: ''
-  relative_file_paths:
-    - spoof_system_viewer_v3_0.db3
-  files:
-    - path: spoof_system_viewer_v3_0.db3
-      starting_time:
-        nanoseconds_since_epoch: 1647787199083859860
-      duration:
-        nanoseconds: 42000000000
-      message_count: 15
