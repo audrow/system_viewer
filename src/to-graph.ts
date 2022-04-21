@@ -1,16 +1,22 @@
+import {ArrowHeadType, XYPosition} from 'react-flow-renderer'
 import {GraphEdge, GraphNode, GraphTopic} from './__types__/GraphElements'
 import type {Node, PubSub} from './__types__/RosEntities'
 import type {TopicHelper, TopicHelperMap} from './__types__/TopicHelper'
+
+const position: XYPosition = {x: 0, y: 0}
 
 export default function toGraph(nodes: Node[], publishers: PubSub[], subscriptions: PubSub[]) {
   // make nodes
   const graphNodes: GraphNode[] = nodes.map((node) => ({
     id: node.id,
     type: 'rosNode',
+    isHidden: false,
     data: {
       namespace: node.namespace,
       label: node.name,
     },
+    position,
+    style: {width: 275, height: 79},
   }))
 
   // make topics
@@ -27,29 +33,42 @@ export default function toGraph(nodes: Node[], publishers: PubSub[], subscriptio
     graphTopics.push({
       id: topicId,
       type: 'rosTopic',
+      isHidden: false,
       data: {
         label: helper.topic,
         namespace: helper.namespace,
       },
+      position,
+      style: {width: 275, height: 79},
     })
     Object.entries(helper.publishers).forEach(([id, pubSubHelper]) => {
       graphEdges.push({
         id: `${id}-${topic}`,
-        source: id,
-        target: topicId,
         type: 'default',
+        isHidden: false,
+        //label: JSON.stringify(pubSubHelper.qos),
+        label: '10Hz',
+        labelStyle: {fill: 'white'},
+        labelBgStyle: {fill: 'rgba(0,0,0,0)'},
+        source: pubSubHelper.nodeId,
+        target: topicId,
         animated: true,
-        label: JSON.stringify(pubSubHelper.qos),
+        arrowHeadType: ArrowHeadType.ArrowClosed,
       })
     })
     Object.entries(helper.subscriptions).forEach(([id, pubSubHelper]) => {
       graphEdges.push({
         id: `${id}-${topic}`,
-        source: topicId,
-        target: id,
         type: 'default',
+        isHidden: false,
+        //label: JSON.stringify(pubSubHelper.qos),
+        label: '10Hz',
+        labelStyle: {fill: 'white'},
+        labelBgStyle: {fill: 'rgba(0,0,0,0)'},
+        source: topicId,
+        target: pubSubHelper.nodeId,
         animated: true,
-        label: JSON.stringify(pubSubHelper.qos),
+        arrowHeadType: ArrowHeadType.ArrowClosed,
       })
     })
   })
